@@ -1,19 +1,28 @@
-using Microsoft.AspNetCore.Mvc;
 using PDF_Reader_APIs.Shared;
+using PDF_Reader_APIs.Server;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 [ApiController]
 [Route("PDF/[controller]")]
-public class PDF_Manager : ControllerBase
+public class ManagerPDF : ControllerBase
 {
-    public PDF_Manager()
+    protected readonly ManipulatorPDF manipulatorPDF = new ManipulatorPDF();
+    protected readonly Database DB;
+    public ManagerPDF(Database DB, ManipulatorPDF manipulatorPDF)
     {
-
+        this.DB = DB;
+        this.manipulatorPDF = manipulatorPDF;
+        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("username" + ":" + "password")));
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> PostPDF()
+    public async Task<ActionResult<int>> PostPDF(List<IFormFile> Files)
     {
-        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("username" + ":" + "password")));
+        foreach(var file in Files)
+        {
+        }
+
         return Ok();
     }
 

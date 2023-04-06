@@ -1,4 +1,6 @@
 using Spire.Pdf;
+using System.Drawing;
+using IronOcr;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -18,15 +20,31 @@ public class ManipulatorPDF
     public List<string> GetSentences(PdfDocument PdfFile)
     {
         string Pattern = "";
-        StringBuilder Buffer = new StringBuilder();
+        List<string> Sentences = new List<string>();
+        Match match;
+        // StringBuilder Buffer = new StringBuilder();
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
-            Buffer.Append(Page.ExtractText());
+            match = Regex.Match(Page.ExtractText(), Pattern);
+            if(match.Success)
+            {
+                Sentences.Add(match.Value);
+            }
+            else
+            {
+                Image[] PageImages = Page.ExtractImages();
+                IronTesseract OCR = new IronTesseract();
+                OcrInput Input = new OcrInput();
+                foreach(var Image in PageImages)
+                {
+                    Input.AddImage(Image);
+                    OcrResult Result = OCR.Read(Input);
+                    Sentences.Add(Regex.Match(Result.Text, Pattern).Value);
+                    Input = new OcrInput();
+                }
+            }
         }
-        Match match = Regex.Match(Buffer.ToString(), Pattern);
-
-
-        return new List<string>();
+        return Sentences;
     }  
 }
 

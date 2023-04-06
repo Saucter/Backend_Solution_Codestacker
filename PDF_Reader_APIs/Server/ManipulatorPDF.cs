@@ -13,5 +13,20 @@ public class ManipulatorPDF
         PdfDocument PdfFile = new PdfDocument();
         PdfFile.LoadFromBytes(FileInBytes);
         return PdfFile;
-    }    
+    }  
+
+    public List<string> GetSentences(PdfDocument PdfFile)
+    {
+        string Pattern = "";
+        StringBuilder Buffer = new StringBuilder();
+        foreach(PdfPageBase Page in PdfFile.Pages)
+        {
+            Buffer.Append(Page.ExtractText());
+        }
+        Match match = Regex.Match(Buffer.ToString(), Pattern);
+
+
+        return new List<string>();
+    }  
 }
+

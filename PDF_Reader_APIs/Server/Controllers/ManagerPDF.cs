@@ -13,6 +13,7 @@ public class PDF_Manager : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> PostPDF()
     {
+        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("username" + ":" + "password")));
         return Ok();
     }
 

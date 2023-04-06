@@ -21,6 +21,7 @@ public class ManagerPDF : ControllerBase
     {
         foreach(var file in Files)
         {
+            DB.Add(new PDF(file.FileName, file.Length, manipulatorPDF.LoadPDF(file).Pages.Count, ));
         }
 
         return Ok();

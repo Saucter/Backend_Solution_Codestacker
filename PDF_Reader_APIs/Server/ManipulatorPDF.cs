@@ -19,7 +19,7 @@ public class ManipulatorPDF
 
     public List<string> GetSentences(PdfDocument PdfFile)
     {
-        string Pattern = "";
+        string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
         List<string> Sentences = new List<string>();
         Match match;
         // StringBuilder Buffer = new StringBuilder();

@@ -1,7 +1,9 @@
-using PDF_Reader_APIs.Shared;
+using PDF_Reader_APIs.Shared.Entities;
 using PDF_Reader_APIs.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Spire.Pdf;
+using Microsoft.Extensions.Configuration;
 
 [ApiController]
 [Route("PDF/[controller]")]
@@ -11,20 +13,25 @@ public class ManagerPDF : ControllerBase
     protected readonly Database DB;
     public ManagerPDF(Database DB, ManipulatorPDF manipulatorPDF)
     {
+        IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: false).Build;
         this.DB = DB;
         this.manipulatorPDF = manipulatorPDF;
-        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("username" + ":" + "password")));
+        string username = config.GetSection("AuthenticationHeader")["username"];
+        string password = config.GetSection("AuthenticationHeader")["password"];
+        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> PostPDF(List<IFormFile> Files)
+    public async Task<ActionResult<List<PDF>>> PostPDF(List<IFormFile> Files)
     {
+        List<PDF> ListPDF = new List<PDF>();
         foreach(var file in Files)
         {
-            DB.Add(new PDF(file.FileName, file.Length, manipulatorPDF.LoadPDF(file).Pages.Count, null));
+            PdfDocument FilePDF = manipulatorPDF.LoadPDF(file);
+            ListPDF.Add(new PDF(file.FileName, file.Length, FilePDF.Pages.Count, manipulatorPDF.GetSentences(FilePDF)));
         }
-
-        return Ok();
+        DB.Add(ListPDF);
+        return Ok(ListPDF);
     }
 
     [HttpGet]

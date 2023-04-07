@@ -26,10 +26,18 @@ public class ManagerPDF : ControllerBase
         List<PDF> ListPDF = new List<PDF>();
         foreach(var file in Files)
         {
-            PdfDocument FilePDF = manipulatorPDF.LoadPDF(file);
-            ListPDF.Add(new PDF(file.FileName, file.Length, FilePDF.Pages.Count, manipulatorPDF.GetSentences(FilePDF)));
+            if(System.IO.Path.GetExtension(file.FileName) == "pdf")
+            {
+                PdfDocument FilePDF = manipulatorPDF.LoadPDF(file);
+                ListPDF.Add(new PDF(file.FileName, file.Length, FilePDF.Pages.Count, manipulatorPDF.GetSentences(FilePDF)));
+            }
+            else
+            {
+                return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF.");           
+            }
         }
         DB.Add(ListPDF);
+        await DB.SaveChangesAsync();
         return Ok(ListPDF);
     }
 

@@ -3,6 +3,7 @@ using PDF_Reader_APIs.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("PDF/[controller]")]
@@ -12,12 +13,12 @@ public class pdfController : ControllerBase
     protected readonly Database DB;
     public pdfController(Database DB, ManipulatorPDF manipulatorPDF)
     {
-        IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
+        // IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
         this.manipulatorPDF = manipulatorPDF;
-        string username = config.GetSection("AuthenticationHeader")["username"];
-        string password = config.GetSection("AuthenticationHeader")["password"];
-        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
+        // string username = config.GetSection("AuthenticationHeader")["username"];
+        // string password = config.GetSection("AuthenticationHeader")["password"];
+        // HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
     }
 
     [HttpPost]
@@ -38,7 +39,7 @@ public class pdfController : ControllerBase
         }
         DB.Add(ListPDF);
         await DB.SaveChangesAsync();
-        return Ok(ListPDF);
+        return await DB.PDFs.ToListAsync();
     }
 
     [HttpGet]

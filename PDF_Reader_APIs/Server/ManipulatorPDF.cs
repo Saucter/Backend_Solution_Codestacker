@@ -1,6 +1,6 @@
 using Spire.Pdf;
 using System.Drawing;
-using IronOcr;
+using Tesseract;
 using System.Text;
 using PDF_Reader_APIs.Shared.Entities;
 using System.Text.RegularExpressions;
@@ -34,14 +34,12 @@ public class ManipulatorPDF
             else
             {
                 Image[] PageImages = Page.ExtractImages();
-                IronTesseract OCR = new IronTesseract();
-                OcrInput Input = new OcrInput();
-                foreach(var Image in PageImages)
+                var OcrEngine = new TesseractEngine(@"./tessdata", "eng", EngineMode.Default);
+                foreach(var PageImage in PageImages)
                 {
-                    Input.AddImage(Image);
-                    OcrResult Result = OCR.Read(Input);
-                    ListSentences.Add(new Sentences(Regex.Match(Result.Text, Pattern).Value));
-                    Input = new OcrInput();
+                    Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
+                    string OcrText = Image.GetText();
+                    ListSentences.Add(new Sentences(Regex.Match(OcrText, Pattern).Value));
                 }
             }
         }

@@ -15,6 +15,7 @@
     <PackageReference Include="Spire.PDF" Version="9.4.0" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
+    <PackageReference Include="Tesseract.Data.English" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

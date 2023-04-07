@@ -23,7 +23,6 @@ public class ManipulatorPDF
         string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
         List<Sentences> ListSentences = new List<Sentences>();
         Match match;
-        // StringBuilder Buffer = new StringBuilder();
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
             match = Regex.Match(Page.ExtractText(), Pattern);
@@ -34,12 +33,13 @@ public class ManipulatorPDF
             else
             {
                 Image[] PageImages = Page.ExtractImages();
-                var OcrEngine = new TesseractEngine(@"./tessdata", "eng", EngineMode.Default);
+                var OcrEngine = new TesseractEngine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", EngineMode.Default);
                 foreach(var PageImage in PageImages)
                 {
                     Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
                     string OcrText = Image.GetText();
                     ListSentences.Add(new Sentences(Regex.Match(OcrText, Pattern).Value));
+                    Image.Dispose();
                 }
             }
         }

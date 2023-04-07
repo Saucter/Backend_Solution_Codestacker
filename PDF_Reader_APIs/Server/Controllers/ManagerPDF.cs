@@ -3,7 +3,6 @@ using PDF_Reader_APIs.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
-using Microsoft.Extensions.Configuration;
 
 [ApiController]
 [Route("PDF/[controller]")]
@@ -13,7 +12,7 @@ public class ManagerPDF : ControllerBase
     protected readonly Database DB;
     public ManagerPDF(Database DB, ManipulatorPDF manipulatorPDF)
     {
-        IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: false).Build;
+        IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
         this.manipulatorPDF = manipulatorPDF;
         string username = config.GetSection("AuthenticationHeader")["username"];

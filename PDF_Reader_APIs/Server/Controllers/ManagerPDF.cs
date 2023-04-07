@@ -27,17 +27,18 @@ public class pdfController : ControllerBase
         {
             if(System.IO.Path.GetExtension(file.FileName) == ".pdf")
             {
-                PdfDocument FilePDF = manipulatorPDF.LoadPDF(file);
-                ListPDF.Add(new PDF(file.FileName, file.Length, FilePDF.Pages.Count, manipulatorPDF.GetSentences(FilePDF)));
+                PdfDocument FileLoader = manipulatorPDF.LoadPDF(file);
+                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, manipulatorPDF.GetSentences(FileLoader), "Dummy string for testing");
+                ListPDF.Add(FileInstance);
+                DB.Add(FileInstance);
             }
             else
             {
                 return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF");           
             }
         }
-        DB.Add(ListPDF);
         await DB.SaveChangesAsync();
-        return Ok(ListPDF);
+        return ListPDF;
     }
 
     [HttpGet]

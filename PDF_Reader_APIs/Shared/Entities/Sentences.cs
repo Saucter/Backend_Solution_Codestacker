@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
 namespace PDF_Reader_APIs.Shared.Entities
 {
     public class Sentences
@@ -12,6 +14,7 @@ namespace PDF_Reader_APIs.Shared.Entities
         public int id {get; set;}
         public int PDFid {get; set;}
         public string Sentence {get; set;}
+        [JsonIgnore]
         public PDF PDF {get; set;}
     }
 }

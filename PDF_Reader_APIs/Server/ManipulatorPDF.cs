@@ -2,6 +2,7 @@ using Spire.Pdf;
 using System.Drawing;
 using IronOcr;
 using System.Text;
+using PDF_Reader_APIs.Shared.Entities;
 using System.Text.RegularExpressions;
 
 public class ManipulatorPDF
@@ -17,10 +18,10 @@ public class ManipulatorPDF
         return PdfFile;
     }  
 
-    public List<string> GetSentences(PdfDocument PdfFile)
+    public List<Sentences> GetSentences(PdfDocument PdfFile, bool SentenceOrAString)
     {
         string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
-        List<string> Sentences = new List<string>();
+        List<Sentences> ListSentences = new List<Sentences>();
         Match match;
         // StringBuilder Buffer = new StringBuilder();
         foreach(PdfPageBase Page in PdfFile.Pages)
@@ -28,7 +29,7 @@ public class ManipulatorPDF
             match = Regex.Match(Page.ExtractText(), Pattern);
             if(match.Success)
             {
-                Sentences.Add(match.Value);
+                ListSentences.Add(new Sentences(match.Value));
             }
             else
             {
@@ -39,12 +40,12 @@ public class ManipulatorPDF
                 {
                     Input.AddImage(Image);
                     OcrResult Result = OCR.Read(Input);
-                    Sentences.Add(Regex.Match(Result.Text, Pattern).Value);
+                    ListSentences.Add(new Sentences(Regex.Match(Result.Text, Pattern).Value));
                     Input = new OcrInput();
                 }
             }
         }
-        return Sentences;
+        return ListSentences;
     }  
 }
 

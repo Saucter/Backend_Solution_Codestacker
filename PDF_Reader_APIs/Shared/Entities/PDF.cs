@@ -3,8 +3,12 @@ namespace PDF_Reader_APIs.Shared.Entities
     public class PDF
     {
         public PDF(){}
-        public PDF(string Name, double FileSize, int NumberOfPages, List<string> Sentences)
+        public PDF(string Name, double FileSize, int NumberOfPages, List<Sentences> Sentences)
         {
+            this.Name = Name;
+            this.FileSize = FileSize;
+            this.NumberOfPages = NumberOfPages;
+            this.Sentences = Sentences;
             this.TimeOfUpload = DateTime.Now;
         }
 

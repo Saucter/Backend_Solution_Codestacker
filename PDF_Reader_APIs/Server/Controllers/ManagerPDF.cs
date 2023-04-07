@@ -6,11 +6,11 @@ using Spire.Pdf;
 
 [ApiController]
 [Route("PDF/[controller]")]
-public class ManagerPDF : ControllerBase
+public class pdfController : ControllerBase
 {
     protected readonly ManipulatorPDF manipulatorPDF = new ManipulatorPDF();
     protected readonly Database DB;
-    public ManagerPDF(Database DB, ManipulatorPDF manipulatorPDF)
+    public pdfController(Database DB, ManipulatorPDF manipulatorPDF)
     {
         IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;

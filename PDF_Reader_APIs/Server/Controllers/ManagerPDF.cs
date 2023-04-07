@@ -39,7 +39,7 @@ public class pdfController : ControllerBase
         }
         DB.Add(ListPDF);
         await DB.SaveChangesAsync();
-        return await DB.PDFs.ToListAsync();
+        return ListPDF;
     }
 
     [HttpGet]

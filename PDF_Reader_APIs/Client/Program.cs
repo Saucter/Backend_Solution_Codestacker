@@ -1,3 +1,4 @@
+using blazorTestApp.Client.Repositories;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PDF_Reader_APIs.Client;
@@ -9,3 +10,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 await builder.Build().RunAsync();
+
+static void ConfigureServices(IServiceCollection serviceAdder)
+{
+    serviceAdder.AddScoped<PdfRepo>();
+}

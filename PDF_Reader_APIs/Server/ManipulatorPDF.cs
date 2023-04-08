@@ -1,3 +1,4 @@
+using System.Linq;
 using Spire.Pdf;
 using System.Drawing;
 using Tesseract;
@@ -21,29 +22,33 @@ public class ManipulatorPDF
     public List<Sentences> GetSentences(PdfDocument PdfFile)
     {
         string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
-        List<Sentences> ListSentences = new List<Sentences>();
-        Match match;
+        List<Sentences>? ListSentences = new List<Sentences>();
+        List<string>? ListStrings = new List<string>();
+        MatchCollection Matches;
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
-            match = Regex.Match(Page.ExtractText(), Pattern);
-            if(match.Success)
-            {
-                ListSentences.Add(new Sentences(match.Value));
-            }
-            else
-            {
-                Image[] PageImages = Page.ExtractImages();
-                var OcrEngine = new TesseractEngine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", EngineMode.Default);
-                foreach(var PageImage in PageImages)
-                {
-                    Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
-                    string OcrText = Image.GetText();
-                    ListSentences.Add(new Sentences(Regex.Match(OcrText, Pattern).Value));
-                    Image.Dispose();
-                }
-            }
+            ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value).Concat(RegexOCR(Page, Pattern)));
+        }
+        foreach(var sentence in ListStrings)
+        {
+            ListSentences.Add(new Sentences(sentence));
         }
         return ListSentences;
-    }  
+    }
+
+    public List<string> RegexOCR(PdfPageBase Page, string Pattern)
+    {
+        List<string> StringSentences = new List<string>();
+        Image[] PageImages = Page.ExtractImages();
+        var OcrEngine = new TesseractEngine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", EngineMode.Default);
+        foreach(var PageImage in PageImages)
+        {
+            Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
+            string OcrText = Image.GetText();
+            StringSentences.Add(Regex.Match(OcrText, Pattern).Value);
+            Image.Dispose();
+        }
+        return StringSentences;
+    }
 }
 

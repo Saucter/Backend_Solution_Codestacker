@@ -21,13 +21,16 @@ public class ManipulatorPDF
 
     public List<Sentences> GetSentences(PdfDocument PdfFile)
     {
-        string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
+        string Pattern = @"\(?[A-Z][^.!?]*((\.|!|\?)(?! |\n|\r|\r\n)[^.!?]*)*(\.|!|\?)(?= |\n|\r|\r\n|)";
         List<Sentences>? ListSentences = new List<Sentences>();
         List<string>? ListStrings = new List<string>();
         MatchCollection Matches;
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
-            ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value).Concat(RegexOCR(Page, Pattern)));
+            
+            ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
+            .Where(x => !string.IsNullOrEmpty(x))
+            .Concat(RegexOCR(Page, Pattern)));
         }
         foreach(var sentence in ListStrings)
         {
@@ -45,10 +48,9 @@ public class ManipulatorPDF
         {
             Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
             string OcrText = Image.GetText();
-            StringSentences.Add(Regex.Match(OcrText, Pattern).Value);
+            StringSentences.AddRange(Regex.Matches(OcrText, Pattern).Cast<Match>().Select(m => m.Value.Trim()).Where(x => !string.IsNullOrEmpty(x)));
             Image.Dispose();
         }
         return StringSentences;
     }
 }
-

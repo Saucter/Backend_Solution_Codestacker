@@ -29,8 +29,9 @@ public class pdfController : ControllerBase
             {
                 PdfDocument FileLoader = manipulatorPDF.LoadPDF(file);
                 PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, manipulatorPDF.GetSentences(FileLoader), "Dummy string for testing");
-                ListPDF.Add(FileInstance);
                 DB.Add(FileInstance);
+                // FileInstance.Sentences = null;
+                ListPDF.Add(FileInstance);
             }
             else
             {

@@ -67,7 +67,7 @@ public class ManipulatorPDF
         }
         for(int i = 0; i < SubStrings.Count() - 1; i++)
         {
-            if((!SubStrings[i].EndsWith(".") && !SubStrings[i].EndsWith("?") && !SubStrings[i].EndsWith("!")) && SubStrings[i+1].StartsWith(" "))
+            if((!SubStrings[i].EndsWith(".") || !SubStrings[i].EndsWith("?") || !SubStrings[i].EndsWith("!")) && SubStrings[i+1].StartsWith(" "))
             {
                 SubStrings[i] = string.Concat(SubStrings[i], SubStrings[i+1]);
                 SubStrings.RemoveAt(i+1);

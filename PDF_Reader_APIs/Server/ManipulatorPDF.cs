@@ -27,10 +27,14 @@ public class ManipulatorPDF
         MatchCollection Matches;
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
-            
-            ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
-            .Where(x => !string.IsNullOrEmpty(x))
-            .Concat(RegexOCR(Page, Pattern)));
+            List<string> StringsInPage = Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
+            .Where(x => !string.IsNullOrEmpty(x)).Concat(RegexOCR(Page, Pattern)).ToList();
+
+            ListStrings.AddRange(FixBreaklines(StringsInPage));
+
+            // ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
+            // .Where(x => !string.IsNullOrEmpty(x))
+            // .Concat(RegexOCR(Page, Pattern)));
         }
         foreach(var sentence in ListStrings)
         {
@@ -52,5 +56,17 @@ public class ManipulatorPDF
             Image.Dispose();
         }
         return StringSentences;
+    }
+
+    public List<string> FixBreaklines(List<string> StringList)
+    {
+        List<string> SubStrings = new List<string>();
+
+        foreach(var Sentence in StringList)
+        {
+            SubStrings = Sentence.Split(@"\r\n", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+        }
+
+        return SubStrings;
     }
 }

@@ -17,10 +17,7 @@ public class ManipulatorPDF
 
     public static PdfDocument LoadPDF(IFormFile file)
     {
-        byte[] FileInBytes;
-        MemoryStream ms = new MemoryStream();
-        file.CopyTo(ms);
-        FileInBytes = ms.ToArray();
+        byte[] FileInBytes = LoadBytePDF(file);
         PdfDocument PdfFile = new PdfDocument();
         PdfFile.LoadFromBytes(FileInBytes);
         return PdfFile;

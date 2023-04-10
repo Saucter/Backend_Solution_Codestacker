@@ -67,9 +67,22 @@ public class pdfController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<ActionResult<List<PDF>>> DeletePDF(int[] id)
+    public async Task<ActionResult<List<PDF>>> DeletePDF([FromQuery] List<int> id)
     {
-        return Ok();
+        List<PDF> ToBeDeleted = await DB.PDFs.Where(x => id.Contains(x.id)).ToListAsync();
+        string ResponseMessage = "PDFs that were deleted: \n=======================\n";
+        if(ToBeDeleted.Any())
+        {
+            int x = 1;
+            foreach(var delete in ToBeDeleted)
+            {
+                ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name}\n");
+                DB.Remove(delete);
+            }
+        }
+        else{ return NotFound("No PDF(s) contain the submitted id(s)"); }
+        await DB.SaveChangesAsync();
+        return Ok(ResponseMessage);
     }
 
     [HttpDelete]

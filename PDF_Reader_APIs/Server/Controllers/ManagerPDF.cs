@@ -10,14 +10,13 @@ public class pdfController : ControllerBase
 {
     protected readonly ManipulatorPDF manipulatorPDF = new ManipulatorPDF();
     protected readonly Database DB;
-    public pdfController(Database DB, ManipulatorPDF manipulatorPDF)
+    public pdfController(Database DB)
     {
-        IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
+        // IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
-        this.manipulatorPDF = manipulatorPDF;
-        string username = config.GetSection("AuthenticationHeader")["username"];
-        string password = config.GetSection("AuthenticationHeader")["password"];
-        HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
+        // string username = config.GetSection("AuthenticationHeader")["username"];
+        // string password = config.GetSection("AuthenticationHeader")["password"];
+        // HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
     }
 
     [HttpPost]
@@ -26,19 +25,21 @@ public class pdfController : ControllerBase
         List<PDF> ListPDF = new List<PDF>();
         foreach(var file in Files)
         {
-            if(System.IO.Path.GetExtension(file.FileName) == "pdf")
+            if(System.IO.Path.GetExtension(file.FileName) == ".pdf")
             {
-                PdfDocument FilePDF = manipulatorPDF.LoadPDF(file);
-                ListPDF.Add(new PDF(file.FileName, file.Length, FilePDF.Pages.Count, manipulatorPDF.GetSentences(FilePDF)));
+                PdfDocument FileLoader = manipulatorPDF.LoadPDF(file);
+                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, manipulatorPDF.GetSentences(FileLoader), "Dummy string for testing");
+                DB.Add(FileInstance);
+                // FileInstance.Sentences = null;
+                ListPDF.Add(FileInstance);
             }
             else
             {
-                return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF.");           
+                return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF");           
             }
         }
-        DB.Add(ListPDF);
         await DB.SaveChangesAsync();
-        return Ok(ListPDF);
+        return ListPDF;
     }
 
     [HttpGet]

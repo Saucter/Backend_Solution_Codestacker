@@ -1,6 +1,7 @@
+using System.Linq;
 using Spire.Pdf;
 using System.Drawing;
-using IronOcr;
+using Tesseract;
 using System.Text;
 using PDF_Reader_APIs.Shared.Entities;
 using System.Text.RegularExpressions;
@@ -20,32 +21,36 @@ public class ManipulatorPDF
 
     public List<Sentences> GetSentences(PdfDocument PdfFile)
     {
-        string Pattern = "^\\s+[A-Za-z,;'\"\\s]+[.?!]$";
-        List<Sentences> ListSentences = new List<Sentences>();
-        Match match;
-        // StringBuilder Buffer = new StringBuilder();
+        string Pattern = @"\(?[A-Z][^.!?]*((\.|!|\?)(?! |\n|\r|\r\n)[^.!?]*)*(\.|!|\?)(?= |\n|\r|\r\n|)";
+        List<Sentences>? ListSentences = new List<Sentences>();
+        List<string>? ListStrings = new List<string>();
+        MatchCollection Matches;
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
-            match = Regex.Match(Page.ExtractText(), Pattern);
-            if(match.Success)
-            {
-                ListSentences.Add(new Sentences(match.Value));
-            }
-            else
-            {
-                Image[] PageImages = Page.ExtractImages();
-                IronTesseract OCR = new IronTesseract();
-                OcrInput Input = new OcrInput();
-                foreach(var Image in PageImages)
-                {
-                    Input.AddImage(Image);
-                    OcrResult Result = OCR.Read(Input);
-                    ListSentences.Add(new Sentences(Regex.Match(Result.Text, Pattern).Value));
-                    Input = new OcrInput();
-                }
-            }
+            
+            ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
+            .Where(x => !string.IsNullOrEmpty(x))
+            .Concat(RegexOCR(Page, Pattern)));
+        }
+        foreach(var sentence in ListStrings)
+        {
+            ListSentences.Add(new Sentences(sentence));
         }
         return ListSentences;
-    }  
-}
+    }
 
+    public List<string> RegexOCR(PdfPageBase Page, string Pattern)
+    {
+        List<string> StringSentences = new List<string>();
+        Image[] PageImages = Page.ExtractImages();
+        var OcrEngine = new TesseractEngine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata"), "eng", EngineMode.Default);
+        foreach(var PageImage in PageImages)
+        {
+            Page Image = OcrEngine.Process(PixConverter.ToPix((Bitmap) PageImage.Clone()));
+            string OcrText = Image.GetText();
+            StringSentences.AddRange(Regex.Matches(OcrText, Pattern).Cast<Match>().Select(m => m.Value.Trim()).Where(x => !string.IsNullOrEmpty(x)));
+            Image.Dispose();
+        }
+        return StringSentences;
+    }
+}

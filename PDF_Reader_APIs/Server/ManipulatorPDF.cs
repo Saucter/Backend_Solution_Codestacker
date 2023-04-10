@@ -27,13 +27,10 @@ public class ManipulatorPDF
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
             List<string> StringsInPage = Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
-            .Where(x => !string.IsNullOrEmpty(x)).Concat(RegexOCR(Page, Pattern)).ToList();
-
+            .Where(x => !string.IsNullOrEmpty(x))
+            .Concat(RegexOCR(Page, Pattern)).ToList();
+            
             ListStrings.AddRange(FixBreaklines(StringsInPage));
-
-            // ListStrings.AddRange(Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim())
-            // .Where(x => !string.IsNullOrEmpty(x))
-            // .Concat(RegexOCR(Page, Pattern)));
         }
         foreach(var sentence in ListStrings)
         {
@@ -67,12 +64,16 @@ public class ManipulatorPDF
         }
         for(int i = 0; i < SubStrings.Count() - 1; i++)
         {
-            if((!SubStrings[i].EndsWith(".") || !SubStrings[i].EndsWith("?") || !SubStrings[i].EndsWith("!")) && SubStrings[i+1].StartsWith(" "))
+            try
             {
-                SubStrings[i] = string.Concat(SubStrings[i], SubStrings[i+1]);
-                SubStrings.RemoveAt(i+1);
-                i--;
+                if((!SubStrings[i].EndsWith(".") || !SubStrings[i].EndsWith("?") || !SubStrings[i].EndsWith("!")) && !char.IsUpper(SubStrings[i+1][0]))
+                {
+                    SubStrings[i] = string.Concat(SubStrings[i], SubStrings[i+1]);
+                    SubStrings.RemoveAt(i+1);
+                    i--;
+                }
             }
+            catch{}
         }
         return SubStrings;
     }

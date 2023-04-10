@@ -13,9 +13,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.15.1" />
     <PackageReference Include="Spire.PDF" Version="9.4.0" />
-    <PackageReference Include="Tesseract" Version="5.2.0" />
-    <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
-    <PackageReference Include="Tesseract.Data.English" Version="4.0.0" />
+    <PackageReference Include="IronOcr" Version="2023.4.13" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,9 +3,10 @@ using PDF_Reader_APIs.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
-[Route("PDF/[controller]")]
+[Route("PDF/[controller]/[action]")]
 public class pdfController : ControllerBase
 {
     protected readonly ManipulatorPDF manipulatorPDF = new ManipulatorPDF();
@@ -43,9 +44,9 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PDF>>> GetPDFs(int[]? id)
+    public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int> GetId)
     {
-        return Ok();
+        return (GetId == null) ? await DB.PDFs.Include(s => s.Sentences).ToListAsync() : await DB.PDFs.Where(x => GetId.Contains(x.id)).Include(s => s.Sentences).ToListAsync();
     }
 
     [HttpGet]

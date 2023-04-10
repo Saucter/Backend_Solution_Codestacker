@@ -6,7 +6,7 @@ using Azure.Storage.Blobs;
 using PDF_Reader_APIs.Shared.Entities;
 
 
-namespace blazorTestApp.Server.Helpers
+namespace PDF_Reader_APIs.Server.AzureStorageServices
 {
     public class AzureFileStorageService : IAzureFileStorageService
     {

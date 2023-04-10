@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using PDF_Reader_APIs.Shared.Entities;
 
 
-namespace blazorTestApp.Server.Helpers
+namespace PDF_Reader_APIs.Server.AzureStorageServices
 {
     public interface IAzureFileStorageService
     {

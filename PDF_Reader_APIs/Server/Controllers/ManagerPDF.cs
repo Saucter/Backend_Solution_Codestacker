@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
 using Microsoft.EntityFrameworkCore;
+using PDF_Reader_APIs.Server.AzureStorageServices;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]

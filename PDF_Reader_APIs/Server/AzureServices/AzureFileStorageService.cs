@@ -17,13 +17,12 @@ namespace PDF_Reader_APIs.Server.AzureStorageServices
             ConnectionString = Config.GetConnectionString("AzureConnectionStorage");
         }
         
-        public async Task<string> SaveFile(byte[] Content, string extention, string ContainerName)
+        public async Task<string> SaveFile(byte[] Content, string Name, string ContainerName)
         {
             var Client = new BlobContainerClient(ConnectionString, ContainerName); 
             await Client.CreateIfNotExistsAsync();
             Client.SetAccessPolicy(Azure.Storage.Blobs.Models.PublicAccessType.Blob);
-            var FileName = $"{Guid.NewGuid()}{extention}";
-            var blob = Client.GetBlobClient(FileName);
+            var blob = Client.GetBlobClient(Name.Replace(" ", "_"));
             using (var ms = new MemoryStream(Content))
             {
                 await blob.UploadAsync(ms);
@@ -41,10 +40,10 @@ namespace PDF_Reader_APIs.Server.AzureStorageServices
             }
         }
 
-        public async Task<string> EditFile(byte[] Content, string extention, string ContainerName, string FileRoute)
+        public async Task<string> EditFile(byte[] Content, string FileName, string ContainerName, string FileRoute)
         {
             await DeleteFile(ContainerName, FileRoute);
-            return await SaveFile(Content, extention, ContainerName);
+            return await SaveFile(Content, FileName, ContainerName);
         }
     }
 }

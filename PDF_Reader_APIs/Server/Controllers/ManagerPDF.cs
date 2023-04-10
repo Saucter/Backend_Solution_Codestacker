@@ -10,12 +10,13 @@ using PDF_Reader_APIs.Server.AzureStorageServices;
 [Route("PDF/[controller]/[action]")]
 public class pdfController : ControllerBase
 {
-    protected readonly ManipulatorPDF manipulatorPDF = new ManipulatorPDF();
     protected readonly Database DB;
-    public pdfController(Database DB)
+    protected readonly IAzureFileStorageService AzureServices;
+    public pdfController(Database DB, IAzureFileStorageService AzureServices)
     {
         // IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
+        this.AzureServices = AzureServices;
         // string username = config.GetSection("AuthenticationHeader")["username"];
         // string password = config.GetSection("AuthenticationHeader")["password"];
         // HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
@@ -29,10 +30,13 @@ public class pdfController : ControllerBase
         {
             if(System.IO.Path.GetExtension(file.FileName) == ".pdf")
             {
-                PdfDocument FileLoader = manipulatorPDF.LoadPDF(file);
-                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, manipulatorPDF.GetSentences(FileLoader), "Dummy string for testing");
+                var FileInBytes = ManipulatorPDF.LoadBytePDF(file);
+                PdfDocument FileLoader = ManipulatorPDF.LoadPDF(file);
+
+                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, ManipulatorPDF.GetSentences(FileLoader), 
+                await AzureServices.SaveFile(FileInBytes, file.FileName, "pdf-container"));
+
                 DB.Add(FileInstance);
-                // FileInstance.Sentences = null;
                 ListPDF.Add(FileInstance);
             }
             else

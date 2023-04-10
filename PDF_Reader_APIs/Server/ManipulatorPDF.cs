@@ -8,7 +8,14 @@ using System.Text.RegularExpressions;
 
 public class ManipulatorPDF
 {
-    public PdfDocument LoadPDF(IFormFile file)
+    public static byte[] LoadBytePDF(IFormFile file)
+    {
+        MemoryStream ms = new MemoryStream();
+        file.CopyTo(ms);
+        return ms.ToArray();
+    }  
+
+    public static PdfDocument LoadPDF(IFormFile file)
     {
         byte[] FileInBytes;
         MemoryStream ms = new MemoryStream();
@@ -19,7 +26,7 @@ public class ManipulatorPDF
         return PdfFile;
     }  
 
-    public List<Sentences> GetSentences(PdfDocument PdfFile)
+    public static List<Sentences> GetSentences(PdfDocument PdfFile)
     {
         string Pattern = @"\(?[A-Z][^.!?]*((\.|!|\?)(?! |\n|\r|\r\n)[^.!?]*)*(\.|!|\?)(?= |\n|\r|\r\n|)";
         List<Sentences>? ListSentences = new List<Sentences>();
@@ -39,7 +46,7 @@ public class ManipulatorPDF
         return ListSentences;
     }
 
-    public List<string> RegexOCR(PdfPageBase Page, string Pattern)
+    public static List<string> RegexOCR(PdfPageBase Page, string Pattern)
     {
         List<string> StringSentences = new List<string>();
         Image[] PageImages = Page.ExtractImages();
@@ -54,7 +61,7 @@ public class ManipulatorPDF
         return StringSentences;
     }
 
-    public List<string> FixBreaklines(List<string> StringList)
+    public static List<string> FixBreaklines(List<string> StringList)
     {
         List<string> SubStrings = new List<string>();
 

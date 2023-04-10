@@ -9,8 +9,8 @@ namespace PDF_Reader_APIs.Server.AzureStorageServices
 {
     public interface IAzureFileStorageService
     {
-        Task<string> SaveFile(byte[] content, string extention, string Container);
+        Task<string> SaveFile(byte[] Content, string Name, string ContainerName);
         Task DeleteFile(string Contaienr, string Route);
-        Task<string> EditFile(byte[] Content, string extention, string Container, string Route);
+        Task<string> EditFile(byte[] Content, string FileName, string ContainerName, string FileRoute);
     }
 }

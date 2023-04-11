@@ -86,8 +86,10 @@ public class pdfController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<ActionResult<List<PDF>>> DeleteAll()
+    public async Task<ActionResult> DeleteAll()
     {
-        return Ok();
+        DB.RemoveRange(await DB.PDFs.ToListAsync());
+        await DB.SaveChangesAsync();
+        return Ok("All files were deleted");
     }
 }

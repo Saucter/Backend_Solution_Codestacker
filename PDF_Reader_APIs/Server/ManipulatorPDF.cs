@@ -24,13 +24,32 @@ public class ManipulatorPDF
         return PdfFile;
     }
 
-    public static List<Sentences> RemoveStopWords(List<Sentences> ListSentences)
+    public static List<string> RemoveStopWords(List<string> ListSentences)
     {
         for(int i = 0; i < ListSentences.Count(); i++)
         {
-            ListSentences[i].Sentence = ListSentences[i].Sentence.RemoveStopWords("en");
+            ListSentences[i] = ListSentences[i].RemoveStopWords("en");
         }
         return ListSentences;
+    }
+
+    public static List<string> GetWords(List<Sentences> ListSentences)
+    {
+        List<string> ListWords = new List<string>();
+        foreach(var Sentence in ListSentences)
+        {
+            ListWords.AddRange(Sentence.Sentence.Split(new[] {" ", "-"}, StringSplitOptions.RemoveEmptyEntries));
+        }
+        for(int i = 0; i < ListWords.Count(); i++)
+        {
+            ListWords[i] = ListWords[i].ToLower();
+            if(char.IsPunctuation(ListWords[i][ListWords[i].Length-1]))
+            {
+                ListWords[i] = ListWords[i].Substring(0, ListWords[i].Length - 1);
+                i--;
+            }
+        }
+        return ListWords;
     }  
 
     public static List<Sentences> GetSentences(PdfDocument PdfFile)

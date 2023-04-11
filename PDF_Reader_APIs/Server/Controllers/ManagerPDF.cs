@@ -61,23 +61,33 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PDF>>> GetTopWords([FromQuery] List<int>? id, int NumberOfWords, [FromQuery] List<string>? Ignore)
+    public async Task<ActionResult<List<string>>> GetTopWords([FromQuery] List<int>? id, int? NumberOfWords, [FromQuery] List<string>? Ignore)
     {
-        List<Sentences> ListSentences = ManipulatorPDF.RemoveStopWords(await DB.Sentences.ToListAsync());
-        List<string> ListWords = new List<string>();
-        foreach(var Sentence in ListSentences)
+        List<string> ListWords = ManipulatorPDF.GetWords(await DB.Sentences.ToListAsync());
+
+        ListWords = ManipulatorPDF.RemoveStopWords(ListWords).Where(x => !string.IsNullOrEmpty(x)).ToList();
+        var WordsGroup = ListWords.GroupBy(x => x);
+        int MaxInGroup = WordsGroup.Max(x => x.Count());
+        List<string> TopWords = new List<string>();
+        int? NumOfWords = (NumberOfWords == null) ? 5 : NumberOfWords;
+        int PreviousListWordsCount = 0;
+        
+        for(int i = 0; i < NumOfWords; i++)
         {
-            ListWords.AddRange(Sentence.Sentence.Split(new[] {" ", "-"}, StringSplitOptions.RemoveEmptyEntries));
-        }
-        for(int i = 0; i < ListWords.Count(); i++)
-        {
-            ListWords[i] = ListWords[i].ToLower();
-            if(char.IsPunctuation(ListWords[i][ListWords[i].Length-1]))
+            var Word = WordsGroup.Where(x => x.Count() == MaxInGroup).Select(x => x.Key).ToList();
+            if(Word != null)
             {
-                ListWords[i] = ListWords[i].Substring(0, ListWords[i].Length - 1);
+                TopWords.AddRange(Word);
+                WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key));
+                for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++)
+                {
+                    TopWords[z] = $"{i + 1}) {TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1)} : Occurred {MaxInGroup} time(s)";
+                }
+                PreviousListWordsCount = TopWords.Count();
+                try { MaxInGroup =  WordsGroup.Max(x => x.Count()); } catch {}
             }
         }
-        return Ok();
+        return TopWords;
     }
 
     [HttpDelete]

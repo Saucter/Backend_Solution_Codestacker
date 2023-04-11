@@ -61,7 +61,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PDF>>> GetTopWords(int[]? id, string? Ignore)
+    public async Task<ActionResult<List<PDF>>> GetTopWords([FromQuery] List<int>? id, int NumberOfWords, [FromQuery] List<string>? Ignore)
     {
         return Ok();
     }

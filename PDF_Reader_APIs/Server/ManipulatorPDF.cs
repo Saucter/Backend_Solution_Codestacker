@@ -5,6 +5,7 @@ using Tesseract;
 using System.Text;
 using PDF_Reader_APIs.Shared.Entities;
 using System.Text.RegularExpressions;
+using StopWord;
 
 public class ManipulatorPDF
 {
@@ -21,6 +22,15 @@ public class ManipulatorPDF
         PdfDocument PdfFile = new PdfDocument();
         PdfFile.LoadFromBytes(FileInBytes);
         return PdfFile;
+    }
+
+    public static List<Sentences> RemoveStopWords(List<Sentences> ListSentences)
+    {
+        for(int i = 0; i < ListSentences.Count(); i++)
+        {
+            ListSentences[i].Sentence = ListSentences[i].Sentence.RemoveStopWords("en");
+        }
+        return ListSentences;
     }  
 
     public static List<Sentences> GetSentences(PdfDocument PdfFile)

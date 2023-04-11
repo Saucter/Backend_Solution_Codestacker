@@ -63,6 +63,12 @@ public class pdfController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<PDF>>> GetTopWords([FromQuery] List<int>? id, int NumberOfWords, [FromQuery] List<string>? Ignore)
     {
+        List<Sentences> ListSentences = ManipulatorPDF.RemoveStopWords(await DB.Sentences.ToListAsync());
+        List<string> ListWords = new List<string>();
+        foreach(var Sentence in ListSentences)
+        {
+            ListWords.AddRange(Sentence.Sentence.Split(new[] {" ", "-"}, StringSplitOptions.RemoveEmptyEntries));
+        }
         return Ok();
     }
 

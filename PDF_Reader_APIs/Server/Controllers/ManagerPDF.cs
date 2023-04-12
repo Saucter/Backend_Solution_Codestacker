@@ -111,8 +111,16 @@ public class pdfController : ControllerBase
             int x = 1;
             foreach(var delete in ToBeDeleted)
             {
-                ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name}\n");
                 DB.Remove(delete);
+                try
+                {
+                    ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n");
+                    await AzureServices.DeleteFile("pdf-container", delete.FileLink);
+                }
+                catch 
+                {
+                    ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: Not found \n");
+                }
             }
         }
         else{ return NotFound("No PDF(s) contain the submitted id(s)"); }
@@ -123,7 +131,12 @@ public class pdfController : ControllerBase
     [HttpDelete]
     public async Task<ActionResult> DeleteAll()
     {
-        DB.RemoveRange(await DB.PDFs.ToListAsync());
+        List<PDF> ToBeDeleted = await DB.PDFs.ToListAsync();
+        foreach(var delete in ToBeDeleted)
+        {
+            await AzureServices.DeleteFile("pdf-container", delete.FileLink);
+        }
+        DB.RemoveRange(ToBeDeleted);
         await DB.SaveChangesAsync();
         return Ok("All files were deleted");
     }

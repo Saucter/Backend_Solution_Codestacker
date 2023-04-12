@@ -84,7 +84,7 @@ public class pdfController : ControllerBase
                 WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key));
                 for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++)
                 {
-                    if(!Ignore.Contains(TopWords[z]))
+                    if(!Ignore.Contains(TopWords[z]) && TopWords[z].Length > 1 && TopWords[z].ToCharArray().Any(x => char.IsAsciiLetter(x)))
                     {
                         TopWords[z] = $"{i + 1}) {TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1)} : Occurred {MaxInGroup} time(s)";
                     }
@@ -98,7 +98,7 @@ public class pdfController : ControllerBase
                 try { MaxInGroup =  WordsGroup.Max(x => x.Count()); } catch {}
             }
         }
-        return TopWords;
+        return TopWords.OrderBy(x => x).ToList();
     }
 
     [HttpDelete]

@@ -43,7 +43,7 @@ public class ManipulatorPDF
         for(int i = 0; i < ListWords.Count(); i++)
         {
             ListWords[i] = ListWords[i].ToLower();
-            if(char.IsPunctuation(ListWords[i][ListWords[i].Length-1]))
+            if(char.IsPunctuation(ListWords[i][ListWords[i].Length-1]) && ListWords[i].Length != 1)
             {
                 ListWords[i] = ListWords[i].Substring(0, ListWords[i].Length - 1);
                 i--;

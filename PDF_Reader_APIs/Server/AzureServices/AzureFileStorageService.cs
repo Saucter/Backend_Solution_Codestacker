@@ -22,7 +22,7 @@ namespace PDF_Reader_APIs.Server.AzureStorageServices
             var Client = new BlobContainerClient(ConnectionString, ContainerName); 
             await Client.CreateIfNotExistsAsync();
             Client.SetAccessPolicy(Azure.Storage.Blobs.Models.PublicAccessType.Blob);
-            var blob = Client.GetBlobClient(Name.Replace(" ", "_"));
+            var blob = Client.GetBlobClient(Guid.NewGuid()+"_"+Name.Replace(" ", "_"));
             using (var ms = new MemoryStream(Content))
             {
                 await blob.UploadAsync(ms);

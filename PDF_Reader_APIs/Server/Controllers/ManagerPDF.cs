@@ -69,21 +69,30 @@ public class pdfController : ControllerBase
         ListWords = ManipulatorPDF.RemoveStopWords(ListWords).Where(x => !string.IsNullOrEmpty(x)).ToList();
         var WordsGroup = ListWords.GroupBy(x => x).Where(x => x.Any());
         int MaxInGroup = WordsGroup.Max(x => x.Count());
-
+        
         List<string> TopWords = new List<string>();
         int? NumOfWords = (NumberOfWords == null) ? 5 : NumberOfWords;
         int PreviousListWordsCount = 0;
+        Ignore = Ignore.Select(x => x.ToLower()).ToList();
         
         for(int i = 0; i < NumOfWords; i++)
         {
-            var Word = WordsGroup.Where(x => x.Count() == MaxInGroup && x != Ignore).Select(x => x.Key).ToList();
+            var Word = WordsGroup.Where(x => x.Count() == MaxInGroup).Select(x => x.Key).ToList();
             if(Word != null)
             {
                 TopWords.AddRange(Word);
                 WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key));
                 for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++)
                 {
-                    TopWords[z] = $"{i + 1}) {TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1)} : Occurred {MaxInGroup} time(s)";
+                    if(!Ignore.Contains(TopWords[z]))
+                    {
+                        TopWords[z] = $"{i + 1}) {TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1)} : Occurred {MaxInGroup} time(s)";
+                    }
+                    else
+                    {
+                        TopWords.Remove(TopWords[z]);
+                        i--;
+                    }
                 }
                 PreviousListWordsCount = TopWords.Count();
                 try { MaxInGroup =  WordsGroup.Max(x => x.Count()); } catch {}

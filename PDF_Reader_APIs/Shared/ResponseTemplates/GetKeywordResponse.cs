@@ -20,6 +20,5 @@ namespace PDF_Reader_APIs.Shared.ResponseTemplates
         public bool Exact {get; set;}
         public bool CaseSensitive {get; set;}
         public List<string> Sentences {get; set;} 
-
     }
 }

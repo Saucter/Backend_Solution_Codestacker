@@ -54,7 +54,10 @@ public class ManipulatorPDF
 
     public static List<Sentences> GetSentences(PdfDocument PdfFile)
     {
-        string Pattern = @"\(?[A-Z][^.!?]*((\.|!|\?)(?! |\n|\r|\r\n)[^.!?]*)*(\.|!|\?)(?= |\n|\r|\r\n|)";
+        string StartOfSentence = @"\(?[A-Z][^.!?]*";
+        string PreventDotNotation_NegativeLookahead = @"((\.|!|\?)(?! |\n|\r|\r\n)[^.!?]*)*";
+        string EndOfSentence = @"(\.|!|\?)(?= |\n|\r|\r\n|)";
+        string Pattern = new StringBuilder().AppendFormat("{0}{1}{2}", StartOfSentence, PreventDotNotation_NegativeLookahead, EndOfSentence).ToString();
         List<Sentences>? ListSentences = new List<Sentences>();
         List<string>? ListStrings = new List<string>();
         foreach(PdfPageBase Page in PdfFile.Pages)

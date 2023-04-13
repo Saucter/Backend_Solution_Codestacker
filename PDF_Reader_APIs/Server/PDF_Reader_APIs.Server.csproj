@@ -17,12 +17,12 @@
     <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
     <PackageReference Include="Tesseract.Data.English" Version="4.0.0" />
     <PackageReference Include="dotnet-stop-words" Version="1.1.0" />
+    <add assembly="System.Data.Entity, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Client\PDF_Reader_APIs.Client.csproj" />
     <ProjectReference Include="..\Shared\PDF_Reader_APIs.Shared.csproj" />
   </ItemGroup>
-
 
 </Project>

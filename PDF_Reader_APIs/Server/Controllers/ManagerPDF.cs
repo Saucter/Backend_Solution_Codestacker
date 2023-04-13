@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
 using Microsoft.EntityFrameworkCore;
 using PDF_Reader_APIs.Server.AzureStorageServices;
+using System.Linq;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]
@@ -55,8 +56,33 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PDF>>> GetKeyword(int[]? id, string Keyword, bool? Exact)
+    public async Task<ActionResult<List<PDF>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
     {
+        List<PDF> ListPDF = new List<PDF>();
+        List<Sentences> ListSentences = new List<Sentences>();
+        int iteration = 0;
+        bool _Exact = Exact ?? false;
+        bool _CaseSensitive = CaseSensitive ?? false;
+        string ResponseMessage = $"Settings -> Word:{Keyword} | Exact:{Exact} | Case sentitive: {CaseSensitive}\n==========================================================\n";
+
+        ListPDF = (id.Count() == 0) ?
+            await DB.PDFs.Include(s => s.Sentences.Select(x => (!_CaseSensitive) ? x.Sentence.ToLower() : x.Sentence)).ToListAsync() :
+            await DB.PDFs.Where(x => id.Contains(x.id)).Include(s => s.Sentences.Select(x => (!_CaseSensitive) ? x.Sentence.ToLower() : x.Sentence)).ToListAsync();
+
+        ListSentences.AddRange((_Exact == false) ? ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Contains(Keyword))).ToList():
+        ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Split(new[] {' ', '-', '\'', '\"',}, StringSplitOptions.RemoveEmptyEntries).Contains(Keyword))).ToList());
+
+        ListPDF = ListPDF.Where(x => ListSentences.Select(s => s.id).Contains(x.id)).ToList();
+
+        // foreach(var pdf in ListPDF)
+        // {
+        //     ResponseMessage = string.Concat(ResponseMessage, $"PDF info -> Id: {pdf.id} | Name: {pdf.Name} | Number of pages: {pdf.NumberOfPages} | Size: {pdf.FileSize} | Copy: {pdf.FileLink}\n");
+        //     foreach(var sentence in pdf.Sentences)
+        //     {
+        //         ResponseMessage = string.Concat(ResponseMessage, $"{iteration}) {sentence}");
+        //     }
+        // }
+        
         return Ok();
     }
 
@@ -102,7 +128,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpDelete]
-    public async Task<ActionResult<List<PDF>>> DeletePDF([FromQuery] List<int> id)
+    public async Task<ActionResult> DeletePDF([FromQuery] List<int> id)
     {
         List<PDF> ToBeDeleted = await DB.PDFs.Where(x => id.Contains(x.id)).ToListAsync();
         string ResponseMessage = "PDFs that were deleted: \n=======================\n";

@@ -133,7 +133,7 @@ public class pdfController : ControllerBase
     public async Task<ActionResult> DeletePDF([FromQuery] List<int> id)
     {
         List<PDF> ToBeDeleted = await DB.PDFs.Where(x => id.Contains(x.id)).ToListAsync();
-        string ResponseMessage = "PDFs that were deleted: \n=======================\n";
+        StringBuilder ResponseMessage = new StringBuilder().Append("PDFs that were deleted: \n=======================\n");
         if(ToBeDeleted.Any())
         {
             int x = 1;
@@ -142,12 +142,12 @@ public class pdfController : ControllerBase
                 DB.Remove(delete);
                 try
                 {
-                    ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n");
+                    ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n", x++, delete.id, delete.Name);
                     await AzureServices.DeleteFile("pdf-container", delete.FileLink);
                 }
                 catch 
                 {
-                    ResponseMessage = string.Concat(ResponseMessage, $"{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: Not found \n");
+                    ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: Not found \n", x++, delete.id, delete.Name);
                 }
             }
         }

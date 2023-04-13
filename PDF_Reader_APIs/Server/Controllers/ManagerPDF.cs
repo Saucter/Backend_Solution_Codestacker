@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PDF_Reader_APIs.Server.AzureStorageServices;
 using System.Linq;
 using System.Text;
+using PDF_Reader_APIs.Shared.ResponseTemplates;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]
@@ -95,8 +96,9 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<string>>> GetTopWords([FromQuery] List<int>? id, int? NumberOfWords, [FromQuery] List<string>? Ignore)
+    public async Task<ActionResult<List<GetKeyWordResponse>>> GetTopWords([FromQuery] List<int>? id, int? NumberOfWords, [FromQuery] List<string>? Ignore)
     {
+        List<GetTopWordsResponse> Response = new List<GetTopWordsResponse>();
         List<string> ListWords = (id.Count() == 0) ? ManipulatorPDF.GetWords(await DB.Sentences.ToListAsync()) : ManipulatorPDF.GetWords(await DB.PDFs.Where(x => id.Contains(x.id))
         .SelectMany(x => x.Sentences).ToListAsync());
 
@@ -118,9 +120,10 @@ public class pdfController : ControllerBase
                 WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key));
                 for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++)
                 {
-                    if(!Ignore.Contains(TopWords[z]) && TopWords[z].Length > 1 && TopWords[z].ToCharArray().Any(x => char.IsAsciiLetter(x)))
+                    if(!Ignore.Contains(TopWords[z]) && TopWords[z].Length > 1 && !TopWords[z].ToCharArray().Any(x => !char.IsAsciiLetter(x)))
                     {
-                        TopWords[z] = $"{i + 1}) {TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1)} : Occurred {MaxInGroup} time(s)";
+                        TopWords[z] = TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1);
+                        Response.Add(new GetTopWordsResponse(TopWords[z], MaxInGroup, i+1));
                     }
                     else
                     {
@@ -132,7 +135,7 @@ public class pdfController : ControllerBase
                 try { MaxInGroup =  WordsGroup.Max(x => x.Count()); } catch {}
             }
         }
-        return TopWords.OrderBy(x => x).ToList();
+        return Ok(Response.OrderBy(x => x.Position).ThenBy(x => x.Word).ToList());
     }
 
     [HttpDelete]

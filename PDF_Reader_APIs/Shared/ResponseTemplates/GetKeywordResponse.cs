@@ -1,8 +1,8 @@
 namespace PDF_Reader_APIs.Shared.ResponseTemplates
 {
-    public class GetKeywordResponse
+    public class GetKeyWordResponse
     {
-        public GetKeywordResponse(string Keyword, bool Exact, bool CaseSensitive, int PdfId, string PdfName, List<string> Sentences, bool Success)
+        public GetKeyWordResponse(string Keyword, bool Exact, bool CaseSensitive, int PdfId, string PdfName, List<string> Sentences, bool Success)
         {
             this.Keyword = Keyword;
             this.Exact = Exact;

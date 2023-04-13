@@ -60,39 +60,30 @@ public class pdfController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<PDF>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
     {
+        List<GetKeyWordResponse> Response = new List<GetKeyWordResponse>();
         List<PDF> ListPDF = (id.Count() == 0) ? await DB.PDFs.Include(s => s.Sentences).ToListAsync() : await DB.PDFs.Where(x => id.Contains(x.id)).Include(s => s.Sentences).ToListAsync(); 
         List<Sentences> ListSentences = new List<Sentences>();
-        StringBuilder ResponseMessage = new StringBuilder();
-        int iteration = 0;
         bool _Exact = Exact ?? false;
         bool _CaseSensitive = CaseSensitive ?? false;
 
         ListSentences.AddRange((_Exact == false) ? ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Contains(Keyword))).ToList():
         ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Split(new[] {' ', '-', '\'', '\"', ','}, StringSplitOptions.RemoveEmptyEntries).Contains(Keyword))).ToList());
         ListPDF = ListPDF.Where(x => ListSentences.Select(s => s.PDFid).Contains(x.id)).ToList();
-        ResponseMessage.AppendFormat("Settings -> Keyword: {0} | Exact: {1} | Case sensitive: {2}\nTotal number of occurrances: {3}\n======================================\n\n", 
-        Keyword, _Exact, _CaseSensitive, ListSentences.Count());
 
         if(ListPDF.Count() != 0)
         {
             foreach(var pdf in ListPDF)
             {
                 pdf.Sentences = ListSentences.Where(s => s.PDFid == pdf.id).ToList();
-                ResponseMessage.AppendFormat("\n\n** Found in PDF -> id: {0} | Name: {1} | Number of occurrances: {2} **\n=============================================\n", 
-                pdf.id, pdf.Name, pdf.Sentences.Count());
-                int i = 0;
-                foreach(var Sentence in pdf.Sentences)
-                {
-                    ResponseMessage.AppendFormat("{0}) {1}\n", ++i, Sentence.Sentence);
-                }
+                Response.Add(new GetKeyWordResponse(pdf.id, pdf.Name, pdf.Sentences.Count(), pdf.Sentences.Select(x => x.Sentence).ToList(), Keyword, _Exact, _CaseSensitive));
             }
         }
         else
         {
-            ResponseMessage.AppendFormat("The keyword '{0}' has not been found in the submitted PDF(s)", Keyword);
+            return NotFound(new StringBuilder().AppendFormat("The keyword '{0}' is not avilable in the submitted PDF(s)").ToString());
         }
 
-        return Ok(ResponseMessage.ToString());
+        return Ok(Response);
     }
 
     [HttpGet]

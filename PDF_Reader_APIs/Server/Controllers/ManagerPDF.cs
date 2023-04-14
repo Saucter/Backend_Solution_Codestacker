@@ -35,9 +35,10 @@ public class pdfController : ControllerBase
             {
                 var FileInBytes = ManipulatorPDF.LoadBytePDF(file);
                 PdfDocument FileLoader = ManipulatorPDF.LoadPDF(file);
+                List<Sentences> Sentences = ManipulatorPDF.GetSentences(FileLoader);
 
-                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, ManipulatorPDF.GetSentences(FileLoader), 
-                await AzureServices.SaveFile(FileInBytes, file.FileName, "pdf-container"));
+                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, Sentences, await AzureServices.SaveFile(FileInBytes, file.FileName, "pdf-container"),
+                await AzureServices.SaveFile(ManipulatorPDF.SentencesToText(Sentences), file.FileName.Substring(0, file.FileName.Length - 4)+"_Sentence.txt", "sentences-container"));
 
                 DB.Add(FileInstance);
                 ListPDF.Add(FileInstance);
@@ -54,11 +55,11 @@ public class pdfController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
     {
-        return (GetId.Count() == 0) ? await DB.PDFs.Include(s => s.Sentences).ToListAsync() : await DB.PDFs.Where(x => GetId.Contains(x.id)).Include(s => s.Sentences).ToListAsync();
+        return (GetId.Count() == 0) ? await DB.PDFs.ToListAsync() : await DB.PDFs.Where(x => GetId.Contains(x.id)).ToListAsync();
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PDF>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
+    public async Task<ActionResult<List<GetKeyWordResponse>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
     {
         List<GetKeyWordResponse> Response = new List<GetKeyWordResponse>();
         List<PDF> ListPDF = (id.Count() == 0) ? await DB.PDFs.Include(s => s.Sentences).ToListAsync() : await DB.PDFs.Where(x => id.Contains(x.id)).Include(s => s.Sentences).ToListAsync(); 

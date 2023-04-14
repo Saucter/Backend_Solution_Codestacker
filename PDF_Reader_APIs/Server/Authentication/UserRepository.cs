@@ -25,7 +25,7 @@ namespace PDF_Reader_APIs.Server.Authentication
             }
             return false;
         }
-        public async Task<List<string>> GetUserNames()
+        public async Task<List<string>> GetUsernames()
         {
             List<User> Users = new List<User>();
             foreach(var User in UsersList)

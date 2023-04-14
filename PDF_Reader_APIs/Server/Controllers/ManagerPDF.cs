@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Spire.Pdf;
 using Microsoft.EntityFrameworkCore;
 using PDF_Reader_APIs.Server.AzureStorageServices;
+using PDF_Reader_APIs.Server.Authentication;
 using System.Linq;
 using System.Text;
 using PDF_Reader_APIs.Shared.ResponseTemplates;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]
@@ -15,11 +17,13 @@ public class pdfController : ControllerBase
 {
     protected readonly Database DB;
     protected readonly IAzureFileStorageService AzureServices;
-    public pdfController(Database DB, IAzureFileStorageService AzureServices)
+    protected readonly IUserRepository UserAuthenticator;
+    public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator)
     {
         // IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
         this.AzureServices = AzureServices;
+        this.UserAuthenticator = UserAuthenticator;
         // string username = config.GetSection("AuthenticationHeader")["username"];
         // string password = config.GetSection("AuthenticationHeader")["password"];
         // HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));

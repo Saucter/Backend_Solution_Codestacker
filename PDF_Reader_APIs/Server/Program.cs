@@ -6,12 +6,13 @@ using PDF_Reader_APIs.Server.Authentication;
 using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("Extreme_Secret_No_Open_Pls.json");
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
+.Replace("my_password", config.Build().GetSection("Secrets:Password").Value)));
 builder.Services.AddScoped<IAzureFileStorageService, AzureFileStorageService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);

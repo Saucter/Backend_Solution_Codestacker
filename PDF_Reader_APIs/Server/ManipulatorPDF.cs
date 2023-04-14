@@ -50,7 +50,24 @@ public class ManipulatorPDF
             }
         }
         return ListWords;
-    }  
+    }
+
+    public static byte[] SentencesToText(List<Sentences> ListSentences)
+    {
+        string FilePath = "./Sentences/Sentences.txt";
+        MemoryStream ms = new MemoryStream();
+        StreamWriter Writer = new StreamWriter(FilePath);
+        foreach(var sentence in ListSentences)
+        {
+            Writer.WriteLine(sentence.Sentence);
+        }
+        Writer.Dispose();
+        FileStream fs = new FileStream(FilePath, FileMode.Open);
+        fs.CopyTo(ms);
+        fs.SetLength(0);
+        fs.Dispose();
+        return ms.ToArray();
+    }    
 
     public static List<Sentences> GetSentences(PdfDocument PdfFile)
     {

@@ -69,14 +69,12 @@ public class pdfController : ControllerBase
         if(!_CaseSensitive)
         {
             Keyword = Keyword.ToLower();
-            for(int i = 0; i < ListPDF.Count(); i++)
+            ListPDF.Select(pdf => 
             {
-                for(int x = 0; x < ListPDF[i].Sentences.Count(); x++)
-                {
-                    ListPDF[i].Sentences[x].Sentence = ListPDF[i].Sentences[x].Sentence.ToLower();
-                }
-            }
-        }
+                pdf.Sentences.ForEach(s => s.Sentence = s.Sentence.ToLower());
+                return pdf;
+            });
+        }   
 
         ListSentences.AddRange((_Exact == false) ? ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Contains(Keyword))).ToList():
         ListPDF.SelectMany(s => s.Sentences.Where(x => x.Sentence.Split(new[] {' ', '-', '\'', '\"', ','}, StringSplitOptions.RemoveEmptyEntries).Contains(Keyword))).ToList());
@@ -94,6 +92,9 @@ public class pdfController : ControllerBase
         {
             return NotFound(new StringBuilder().AppendFormat("The keyword '{0}' is not avilable in the submitted PDF(s)", Keyword).ToString());
         }
+
+        int Total = 0;
+        Response.ForEach(x => Total += x.Occurrances);
 
         return Ok(Response);
     }

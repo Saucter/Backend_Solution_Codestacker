@@ -6,10 +6,10 @@ using Microsoft.Extensions.Options;
 
 namespace PDF_Reader_APIs.Server.Authentication
 {
-    public class BasicAuthenticationHandler : AuthenticationHandler<User>
+    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly IUserRepository UserAuthenticator;
-        public BasicAuthenticationHandler(IOptionsMonitor<User> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IUserRepository UserAuthenticator)
+        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IUserRepository UserAuthenticator)
         : base(options, logger, encoder, clock)
         {
             this.UserAuthenticator = UserAuthenticator;
@@ -33,7 +33,7 @@ namespace PDF_Reader_APIs.Server.Authentication
             }
             Response.StatusCode = 401;
             Response.Headers.Add("WWW-Authenticate", "Basic realm=\"PDF_Reader_API\"");
-            return await Task.FromResult(AuthenticateResult.Fail("Invalid Authorization Header"));
+            return AuthenticateResult.Fail("Invalid Authorization Header");
         }
     }  
 }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]
+[Authorize(AuthenticationSchemes = "BasicAuthentication")]
 public class pdfController : ControllerBase
 {
     protected readonly Database DB;
@@ -30,6 +31,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<List<PDF>>> PostPDF(List<IFormFile> Files)
     {
         List<PDF> ListPDF = new List<PDF>();
@@ -49,7 +51,7 @@ public class pdfController : ControllerBase
             }
             else
             {
-                return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF");           
+                return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF");       
             }
         }
         await DB.SaveChangesAsync();

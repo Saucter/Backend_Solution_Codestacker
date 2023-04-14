@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PDF_Reader_APIs.Server;
 using PDF_Reader_APIs.Server.AzureStorageServices;
 using PDF_Reader_APIs.Server.Authentication;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IAzureFileStorageService, AzureFileStorageService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 var app = builder.Build();
 
@@ -35,6 +37,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

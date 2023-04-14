@@ -19,7 +19,7 @@ namespace PDF_Reader_APIs.Server.Authentication
         };
         public async Task<bool> Authenticate(string username, string password)
         {
-            if(await Task.FromResult(UsersList.SingleOrDefault(x => x.Username == username && x.Password == password)) != null)
+            if(UsersList.Any(x => x.Username == username && x.Password == password))
             {
                 return true;
             }

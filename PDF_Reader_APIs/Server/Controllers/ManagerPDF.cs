@@ -55,7 +55,15 @@ public class pdfController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
     {
-        return (GetId.Count() == 0) ? await DB.PDFs.ToListAsync() : await DB.PDFs.Where(x => GetId.Contains(x.id)).ToListAsync();
+        List<PDF> ListPDFs = await DB.PDFs.ToListAsync();
+        if(ListPDFs.Any(x => GetId.Contains(x.id)) || GetId.Count() == 0)
+        {
+            return (GetId.Count() == 0) ? ListPDFs : ListPDFs.Where(x => GetId.Contains(x.id)).ToList();
+        } 
+        else
+        {
+            return NotFound("The PDF with submitted ID(s) is unavailable");
+        }       
     }
 
     [HttpGet]

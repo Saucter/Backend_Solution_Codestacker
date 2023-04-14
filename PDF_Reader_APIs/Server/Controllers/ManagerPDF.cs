@@ -21,13 +21,9 @@ public class pdfController : ControllerBase
     protected readonly IUserRepository UserAuthenticator;
     public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator)
     {
-        // IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings_Authentication.json", optional: false, reloadOnChange: false).Build();
         this.DB = DB;
         this.AzureServices = AzureServices;
         this.UserAuthenticator = UserAuthenticator;
-        // string username = config.GetSection("AuthenticationHeader")["username"];
-        // string password = config.GetSection("AuthenticationHeader")["password"];
-        // HttpContext.Request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{username}:{password}")));
     }
 
     [HttpPost]
@@ -59,6 +55,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
     {
         List<PDF> ListPDFs = await DB.PDFs.ToListAsync();
@@ -73,6 +70,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<GetKeyWordResponse>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
     {
         List<GetKeyWordResponse> Response = new List<GetKeyWordResponse>();
@@ -115,6 +113,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<List<GetKeyWordResponse>>> GetTopWords([FromQuery] List<int>? id, int? NumberOfWords, [FromQuery] List<string>? Ignore)
     {
         List<GetTopWordsResponse> Response = new List<GetTopWordsResponse>();
@@ -158,6 +157,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize]
     public async Task<ActionResult> DeletePDF([FromQuery] List<int> id)
     {
         List<PDF> ToBeDeleted = await DB.PDFs.Where(x => id.Contains(x.id)).ToListAsync();
@@ -185,6 +185,7 @@ public class pdfController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize]
     public async Task<ActionResult> DeleteAll()
     {
         List<PDF> ToBeDeleted = await DB.PDFs.ToListAsync();

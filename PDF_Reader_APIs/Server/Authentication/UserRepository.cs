@@ -6,16 +6,12 @@ namespace PDF_Reader_APIs.Server.Authentication
         {
             new User 
             {
-                Id = 1, Username = "peter", Password = "peter123"            
+                Id = 1, Username = "Mohammed", Password = "DoesThisWork123?"            
             },
             new User
             {
-                Id = 2, Username = "joydip", Password = "joydip123"
+                Id = 2, Username = "RihalTeam", Password = "Your_PW:)"
             },
-            new User
-            {
-                Id = 3, Username = "james", Password = "james123"
-            }
         };
         public async Task<bool> Authenticate(string username, string password)
         {

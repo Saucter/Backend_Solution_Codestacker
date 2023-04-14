@@ -274,4 +274,4 @@ __pycache__/
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore
 
 #Personal addition
-appsettings_Authentication.json
+Extreme_Secret_No_Open_Pls.json

@@ -109,11 +109,12 @@ public class ManipulatorPDF
 
     public static List<string> FixBreaklines(List<string> StringList)
     {
+        StringBuilder Builder = new StringBuilder();
         List<string> SubStrings = new List<string>();
 
         foreach(var Sentence in StringList)
         {
-            SubStrings.AddRange(Sentence.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()));
+            SubStrings.AddRange(Sentence.Split("\r\n", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)));
         }
         for(int i = 0; i < SubStrings.Count() - 1; i++)
         {
@@ -121,7 +122,7 @@ public class ManipulatorPDF
             {
                 if((!SubStrings[i].EndsWith(".") || !SubStrings[i].EndsWith("?") || !SubStrings[i].EndsWith("!")) && !char.IsUpper(SubStrings[i+1][0]))
                 {
-                    SubStrings[i] = string.Concat(SubStrings[i], SubStrings[i+1]);
+                    SubStrings[i] = Builder.AppendFormat("{0} {1}", SubStrings[i], SubStrings[i + 1]).ToString();
                     SubStrings.RemoveAt(i+1);
                     i--;
                 }

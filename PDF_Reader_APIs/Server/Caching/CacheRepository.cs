@@ -9,7 +9,6 @@ namespace PDF_Reader_APIs.Server.Caching
     {
         protected readonly IMemoryCache Cache;
         protected readonly Database DB;
-        int PostNumber = -1;
         public CacheRepository(Database DB, IMemoryCache Cache)
         {
             this.DB = DB;
@@ -18,19 +17,10 @@ namespace PDF_Reader_APIs.Server.Caching
 
         public async Task<List<PDF>> GetCache(string CacheName, List<int>? id)
         {
-            if(Cache.Get(CacheName) == null)
-            {
-                return await CacheValue(CacheName, id);
-            }
-            return Cache.Get<List<PDF>>(CacheName);
-        }
-
-        private async Task<List<PDF>> CacheValue(string CacheName, List<int>? id)
-        {
             var CacheData = await Cache.GetOrCreateAsync(CacheName, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-                var Data = await DB.PDFs.ToListAsync();
+                var Data = await DB.PDFs.Include(x => x.Sentences).ToListAsync();
                 Cache.Set(CacheName, Data);
                 return Data;
             });

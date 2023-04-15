@@ -78,7 +78,7 @@ public class pdfController : ControllerBase
     public async Task<ActionResult<List<GetKeyWordResponse>>> GetKeyword([FromQuery] List<int>? id, string Keyword, bool? Exact, bool? CaseSensitive)
     {
         List<GetKeyWordResponse> Response = new List<GetKeyWordResponse>();
-        List<PDF> ListPDF = (id.Count() == 0) ? await DB.PDFs.Include(s => s.Sentences).ToListAsync() : await DB.PDFs.Where(x => id.Contains(x.id)).Include(s => s.Sentences).ToListAsync(); 
+        List<PDF> ListPDF = await Cache.GetCache("ListPDF", id);
         List<Sentences> ListSentences = new List<Sentences>();
         bool _Exact = Exact ?? false;
         bool _CaseSensitive = CaseSensitive ?? false;
@@ -122,8 +122,8 @@ public class pdfController : ControllerBase
     public async Task<ActionResult<List<GetKeyWordResponse>>> GetTopWords([FromQuery] List<int>? id, int? NumberOfWords, [FromQuery] List<string>? Ignore)
     {
         List<GetTopWordsResponse> Response = new List<GetTopWordsResponse>();
-        List<string> ListWords = (id.Count() == 0) ? ManipulatorPDF.GetWords(await DB.Sentences.ToListAsync()) : ManipulatorPDF.GetWords(await DB.PDFs.Where(x => id.Contains(x.id))
-        .SelectMany(x => x.Sentences).ToListAsync());
+        List<PDF> ListPDF = await Cache.GetCache("ListPDF", id);
+        List<string> ListWords = ManipulatorPDF.GetWords(ListPDF.SelectMany(x => x.Sentences).ToList());
 
         ListWords = ManipulatorPDF.RemoveStopWords(ListWords).Where(x => !string.IsNullOrEmpty(x)).ToList();
         var WordsGroup = ListWords.GroupBy(x => x).Where(x => x.Key.Length > 1 && x.Key.ToCharArray().All(k => char.IsLetter(k)));
@@ -166,7 +166,7 @@ public class pdfController : ControllerBase
     [Authorize]
     public async Task<ActionResult> DeletePDF([FromQuery] List<int> id)
     {
-        List<PDF> ToBeDeleted = await DB.PDFs.Where(x => id.Contains(x.id)).ToListAsync();
+        List<PDF> ToBeDeleted = await Cache.GetCache("ListPDF", id);
         StringBuilder ResponseMessage = new StringBuilder().Append("PDFs that were deleted: \n=======================\n");
         if(ToBeDeleted.Any())
         {
@@ -194,7 +194,7 @@ public class pdfController : ControllerBase
     [Authorize]
     public async Task<ActionResult> DeleteAll()
     {
-        List<PDF> ToBeDeleted = await DB.PDFs.ToListAsync();
+        List<PDF> ToBeDeleted = await Cache.GetCache("ListPDF", new List<int>());
         foreach(var delete in ToBeDeleted)
         {
             await AzureServices.DeleteFile("pdf-container", delete.FileLink);

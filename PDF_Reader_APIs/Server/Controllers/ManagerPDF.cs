@@ -19,9 +19,9 @@ public class pdfController : ControllerBase
 {
     protected readonly Database DB;
     protected readonly IAzureFileStorageService AzureServices;
+    protected readonly ICacheRepository Cache;
     protected readonly IUserRepository UserAuthenticator;
-    protected readonly IMemoryCache Cache;
-    public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator, IMemoryCache Cache)
+    public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator, ICacheRepository Cache)
     {
         this.DB = DB;
         this.AzureServices = AzureServices;
@@ -53,6 +53,7 @@ public class pdfController : ControllerBase
                 return BadRequest("Bad request: Only PDFs are accepted. File(s) sent is not a PDF");       
             }
         }
+        Cache.Remove("ListPDF");
         await DB.SaveChangesAsync();
         return ListPDF;
     }
@@ -61,7 +62,7 @@ public class pdfController : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
     {
-        List<PDF> ListPDFs = await GetCache(GetId);
+        List<PDF> ListPDFs = await Cache.GetCache("ListPDF", GetId);
         if(ListPDFs.Any(x => GetId.Contains(x.id)) || GetId.Count() == 0)
         {
             return (GetId.Count() == 0) ? ListPDFs : ListPDFs.Where(x => GetId.Contains(x.id)).ToList();
@@ -201,17 +202,5 @@ public class pdfController : ControllerBase
         DB.RemoveRange(ToBeDeleted);
         await DB.SaveChangesAsync();
         return Ok("All files were deleted");
-    }
-
-    public async Task<List<PDF>> GetCache(List<int>? id)
-    {
-        var CacheData = await Cache.GetOrCreateAsync("ListPDF", async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-            var Data = await DB.PDFs.ToListAsync();
-            Cache.Set("ListPDF", Data);
-            return Data;
-        });
-        return (id.Count() == 0 ) ? CacheData : CacheData.Where(x => id.Contains(x.id)).ToList();
     }
 }

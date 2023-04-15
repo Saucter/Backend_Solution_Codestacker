@@ -60,12 +60,26 @@ public class pdfController : ControllerBase
 
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
+    public async Task<ActionResult<List<GetPdfResponse>>> GetPDFs([FromQuery] List<int>? GetId, bool WithSentences)
     {
         List<PDF> ListPDFs = await Cache.GetCache("ListPDF", GetId);
+        List<GetPdfResponse> Response = new List<GetPdfResponse>();
         if(ListPDFs.Any(x => GetId.Contains(x.id)) || GetId.Count() == 0)
         {
-            return (GetId.Count() == 0) ? ListPDFs : ListPDFs.Where(x => GetId.Contains(x.id)).ToList();
+            List<PDF> ToBeReturned = (GetId.Count() == 0) ? ListPDFs : ListPDFs.Where(x => GetId.Contains(x.id)).ToList();
+            if(WithSentences)
+            {
+                return Ok(ToBeReturned);
+            }
+            else
+            {
+                foreach(var pdf in ToBeReturned)
+                {
+                    Response.Add(new GetPdfResponse(pdf.id, pdf.Name, pdf.FileSize, pdf.NumberOfPages, pdf.FileLink, pdf.SentencesLinkTxt));
+                }
+                return Ok(Response);
+            }
+            
         } 
         else
         {
@@ -178,16 +192,17 @@ public class pdfController : ControllerBase
                 {
                     ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n", x++, delete.id, delete.Name);
                     await AzureServices.DeleteFile("pdf-container", delete.FileLink);
+                    await AzureServices.DeleteFile("sentences-container", delete.SentencesLinkTxt);
                 }
                 catch 
                 {
-                    ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: Not found \n", x++, delete.id, delete.Name);
+                    ResponseMessage = ResponseMessage.AppendFormat("{0}) Id: {1} | Name: {2} | Blob file: Not found \n", x++, delete.id, delete.Name);
                 }
             }
         }
         else{ return NotFound("No PDF(s) contain the submitted id(s)"); }
         await DB.SaveChangesAsync();
-        return Ok(ResponseMessage);
+        return Ok(ResponseMessage.ToString());
     }
 
     [HttpDelete]
@@ -198,6 +213,7 @@ public class pdfController : ControllerBase
         foreach(var delete in ToBeDeleted)
         {
             await AzureServices.DeleteFile("pdf-container", delete.FileLink);
+            await AzureServices.DeleteFile("sentences-container", delete.SentencesLinkTxt);
         }
         DB.RemoveRange(ToBeDeleted);
         await DB.SaveChangesAsync();

@@ -107,8 +107,9 @@ public class pdfController : ControllerBase
         }
 
         int Total = 0;
-        Response.ForEach(x => Total += x.Occurrances);
-
+        Response.ForEach(x => Total += x.Occurrences);
+        Response.ForEach(x => x.TotalOccurrences = Total);
+        
         return Ok(Response);
     }
 

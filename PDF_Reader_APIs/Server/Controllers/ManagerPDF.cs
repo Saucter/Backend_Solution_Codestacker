@@ -121,7 +121,7 @@ public class pdfController : ControllerBase
         .SelectMany(x => x.Sentences).ToListAsync());
 
         ListWords = ManipulatorPDF.RemoveStopWords(ListWords).Where(x => !string.IsNullOrEmpty(x)).ToList();
-        var WordsGroup = ListWords.GroupBy(x => x).Where(x => x.Any());
+        var WordsGroup = ListWords.GroupBy(x => x).Where(x => x.Key.Length > 1 && x.Key.ToCharArray().All(k => char.IsLetter(k)));
         int MaxInGroup = WordsGroup.Max(x => x.Count());
         
         List<string> TopWords = new List<string>();
@@ -145,8 +145,9 @@ public class pdfController : ControllerBase
                     }
                     else
                     {
+                        Word.Remove(TopWords[z]);
                         TopWords.Remove(TopWords[z]);
-                        i--;
+                        z--;
                     }
                 }
                 PreviousListWordsCount = TopWords.Count();

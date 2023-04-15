@@ -16,6 +16,7 @@ builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.
 builder.Services.AddScoped<IAzureFileStorageService, AzureFileStorageService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

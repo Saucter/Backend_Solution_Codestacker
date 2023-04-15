@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using PDF_Reader_APIs.Shared.ResponseTemplates;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 
 [ApiController]
 [Route("PDF/[controller]/[action]")]
@@ -19,11 +20,13 @@ public class pdfController : ControllerBase
     protected readonly Database DB;
     protected readonly IAzureFileStorageService AzureServices;
     protected readonly IUserRepository UserAuthenticator;
-    public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator)
+    protected readonly IMemoryCache Cache;
+    public pdfController(Database DB, IAzureFileStorageService AzureServices, IUserRepository UserAuthenticator, IMemoryCache Cache)
     {
         this.DB = DB;
         this.AzureServices = AzureServices;
         this.UserAuthenticator = UserAuthenticator;
+        this.Cache = Cache;
     }
 
     [HttpPost]
@@ -198,5 +201,17 @@ public class pdfController : ControllerBase
         DB.RemoveRange(ToBeDeleted);
         await DB.SaveChangesAsync();
         return Ok("All files were deleted");
+    }
+
+    public async Task<List<PDF>> CacheData()
+    {
+        var Data = await Cache.GetOrCreateAsync("ListPDF", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+            var _Data = await DB.PDFs.ToListAsync();
+            Cache.Set("ListPDF", _Data);
+            return _Data;
+        });
+        return Data;
     }
 }

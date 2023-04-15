@@ -61,7 +61,7 @@ public class pdfController : ControllerBase
     [Authorize]
     public async Task<ActionResult<List<PDF>>> GetPDFs([FromQuery] List<int>? GetId)
     {
-        List<PDF> ListPDFs = await DB.PDFs.ToListAsync();
+        List<PDF> ListPDFs = await GetCache(GetId);
         if(ListPDFs.Any(x => GetId.Contains(x.id)) || GetId.Count() == 0)
         {
             return (GetId.Count() == 0) ? ListPDFs : ListPDFs.Where(x => GetId.Contains(x.id)).ToList();
@@ -203,15 +203,15 @@ public class pdfController : ControllerBase
         return Ok("All files were deleted");
     }
 
-    public async Task<List<PDF>> CacheData()
+    public async Task<List<PDF>> GetCache(List<int>? id)
     {
-        var Data = await Cache.GetOrCreateAsync("ListPDF", async entry =>
+        var CacheData = await Cache.GetOrCreateAsync("ListPDF", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-            var _Data = await DB.PDFs.ToListAsync();
-            Cache.Set("ListPDF", _Data);
-            return _Data;
+            var Data = await DB.PDFs.ToListAsync();
+            Cache.Set("ListPDF", Data);
+            return Data;
         });
-        return Data;
+        return (id.Count() == 0 ) ? CacheData : CacheData.Where(x => id.Contains(x.id)).ToList();
     }
 }

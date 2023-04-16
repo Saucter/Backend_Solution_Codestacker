@@ -158,7 +158,7 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
         var WordsGroup = ListWords.GroupBy(x => x).Where(x => x.Key.Length > 1 && x.Key.ToCharArray().All(k => char.IsLetter(k))); 
         int MaxInGroup = WordsGroup.Max(x => x.Count()); //Return the count of the highest group
         
-        List<string> TopWords = new List<string>();
+        List<string> TopWords = new List<string>(); //The list where the final result will be stored
         int? NumOfWords = (NumberOfWords == null) ? 5 : NumberOfWords; //Default 'NumberOfWords' to 5 if it is null
         int PreviousListWordsCount = 0;
         Ignore = Ignore.Select(x => x.ToLower()).ToList(); //Make sure the ignore list is in lowercased letters
@@ -166,38 +166,43 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
         for(int i = 0; i < NumOfWords; i++) //Repeats based on the number of top words requested
         {
             var Word = WordsGroup.Where(x => x.Count() == MaxInGroup).Select(x => x.Key).ToList(); //Finds the group with the highest count and return its key
-            if(Word != null) //Ensure that the MaxInGroup 
+            if(Word != null) //Ensure that the MaxInGroup actually corrosponds to a value in WordGroup 
             {
-                TopWords.AddRange(Word); //Add 
-                WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key));
-                for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++)
+                TopWords.AddRange(Word); 
+                WordsGroup = WordsGroup.Where(x => !Word.Contains(x.Key)); //Removes the word gotten from the group
+                for(int z = PreviousListWordsCount; z < PreviousListWordsCount + Word.Count(); z++) //Loops only for the amount of new words added to the TopWords list
                 {
-                    if(!Ignore.Contains(TopWords[z]) && TopWords[z].Length > 1 && !TopWords[z].ToCharArray().Any(x => !char.IsAsciiLetter(x)))
+                    if(!Ignore.Contains(TopWords[z]) && TopWords[z].Length > 1 && !TopWords[z].ToCharArray().Any(x => !char.IsAsciiLetter(x))) //Double check the word's validity
                     {
-                        TopWords[z] = TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1);
-                        Response.Add(new GetTopWordsResponse(TopWords[z], MaxInGroup, i+1));
+                        //Capitalize the word and add it to the response template
+                        TopWords[z] = TopWords[z].Remove(1).ToUpper() + TopWords[z].Substring(1); 
+                        Response.Add(new GetTopWordsResponse(TopWords[z], MaxInGroup, i+1)); 
                     }
                     else
                     {
+                        //If the word is invalid it is removed from the TopWords and Words lists and the loop is repeated one more time
                         Word.Remove(TopWords[z]);
                         TopWords.Remove(TopWords[z]);
                         z--;
                     }
                 }
+                //Updates the variables to operate as intended in the next loop
                 PreviousListWordsCount = TopWords.Count();
                 try { MaxInGroup =  WordsGroup.Max(x => x.Count()); } catch {}
             }
         }
-        return Ok(Response.OrderBy(x => x.Position).ThenBy(x => x.Word).ToList());
+        return Ok(Response.OrderBy(x => x.Position).ThenBy(x => x.Word).ToList()); //Order the response template by position value and then lexicographic order
     }
 
+
+    //(DELETE) Deletes a PDF based on the submitted ID
     [HttpDelete]
     [Authorize]
     public async Task<ActionResult> DeletePDF([FromQuery] List<int> id)
     {
         List<PDF> ToBeDeleted = await Cache.GetCache("ListPDF", id);
-        StringBuilder ResponseMessage = new StringBuilder().Append("PDFs that were deleted: \n=======================\n");
-        if(ToBeDeleted.Any())
+        StringBuilder ResponseMessage = new StringBuilder().Append("PDFs that were deleted: \n=======================\n"); //Used instead of concatenation to improve efficiency
+        if(ToBeDeleted.Any()) //Ensures the ID to be deleted is available
         {
             int x = 1;
             foreach(var delete in ToBeDeleted)
@@ -205,11 +210,12 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
                 DB.Remove(delete);
                 try
                 {
+                    //Removes the file from the object / blob storage
                     ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n", x++, delete.id, delete.Name);
                     await AzureServices.DeleteFile("pdf-container", delete.FileLink);
                     await AzureServices.DeleteFile("sentences-container", delete.SentencesLinkTxt);
                 }
-                catch 
+                catch  //If the file is not in object storage, then an appropriate message is delivered in a try-catch instead to prevent crashes
                 {
                     ResponseMessage = ResponseMessage.AppendFormat("{0}) Id: {1} | Name: {2} | Blob file: Not found \n", x++, delete.id, delete.Name);
                 }
@@ -217,21 +223,25 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
         }
         else{ return NotFound("No PDF(s) contain the submitted id(s)"); }
         await DB.SaveChangesAsync();
+        Cache.Remove("ListPDF"); //Unload the cache after a new post
         return Ok(ResponseMessage.ToString());
     }
 
+
+    //(DELETE) Deletes all PDFs from the DB. Placed in a seperate area for 
     [HttpDelete]
     [Authorize]
     public async Task<ActionResult> DeleteAll()
     {
         List<PDF> ToBeDeleted = await Cache.GetCache("ListPDF", new List<int>());
-        foreach(var delete in ToBeDeleted)
+        foreach(var delete in ToBeDeleted) //Delete all files from object storage
         {
             await AzureServices.DeleteFile("pdf-container", delete.FileLink);
             await AzureServices.DeleteFile("sentences-container", delete.SentencesLinkTxt);
         }
         DB.RemoveRange(ToBeDeleted);
         await DB.SaveChangesAsync();
+        Cache.Remove("ListPDF"); //Unload the cache after a new post
         return Ok("All files were deleted");
     }
 }

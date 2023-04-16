@@ -211,7 +211,7 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
                 try
                 {
                     //Removes the file from the object / blob storage
-                    ResponseMessage = ResponseMessage.AppendFormat("{x++}) Id: {delete.id} | Name: {delete.Name} | Blob file: deleted \n", x++, delete.id, delete.Name);
+                    ResponseMessage = ResponseMessage.AppendFormat("{0}) Id: {1} | Name: {2} | Blob file: deleted \n", x++, delete.id, delete.Name);
                     await AzureServices.DeleteFile("pdf-container", delete.FileLink);
                     await AzureServices.DeleteFile("sentences-container", delete.SentencesLinkTxt);
                 }

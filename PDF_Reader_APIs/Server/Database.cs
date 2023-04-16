@@ -7,16 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PDF_Reader_APIs.Server
 {
-    public class Database : DbContext
+    public class Database : DbContext //Inherit's from EF Core's DBContext. Allows migrations to be added through the class
     {
         public Database(){}
         public Database(DbContextOptions<Database> options) : base(options){}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PDF>().HasMany(x => x.Sentences).WithOne(y => y.PDF).HasForeignKey(z => z.PDFid);            
+            modelBuilder.Entity<PDF>().HasMany(x => x.Sentences).WithOne(y => y.PDF).HasForeignKey(z => z.PDFid); //Creates a One-To-Many relationship between PDF and Sentences   
             base.OnModelCreating(modelBuilder);
         }
-        public DbSet<PDF> PDFs {get; set;}
+        
+        //Maps the PDF and Sentences classes into the DB
+        public DbSet<PDF> PDFs {get; set;} 
         public DbSet<Sentences> Sentences {get; set;}
     }
 }

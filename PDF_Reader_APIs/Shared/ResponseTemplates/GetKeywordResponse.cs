@@ -1,5 +1,6 @@
 namespace PDF_Reader_APIs.Shared.ResponseTemplates
 {
+    //Class containing all the required responses in the HTTP GET response of the GetKeyword API
     public class GetKeyWordResponse
     {
         public GetKeyWordResponse(int PdfId, string PdfName, int Occurrences, List<string> Sentences, string Keyword, bool Exact, bool CaseSensitive)
@@ -17,7 +18,7 @@ namespace PDF_Reader_APIs.Shared.ResponseTemplates
         public string PdfName {get; set;}
         public string Keyword {get; set;}
         public int Occurrences   {get; set;}
-        public int TotalOccurrences  {get; set;}
+        public int TotalOccurrences  {get; set;} //The total occurrances of the keyword across all the submitted IDs
         public bool Exact {get; set;}
         public bool CaseSensitive {get; set;}
         public List<string> Sentences {get; set;} 

@@ -1,5 +1,6 @@
 namespace PDF_Reader_APIs.Shared.Entities
 {
+    //Class containing all the required properties for a PDF entity in the DB
     public class PDF
     {
         public PDF(){}
@@ -19,7 +20,7 @@ namespace PDF_Reader_APIs.Shared.Entities
         public DateTime TimeOfUpload {get; set;}
         public double FileSize {get; set;}
         public int NumberOfPages {get; set;}
-        public List<Sentences> Sentences {get; set;}
+        public List<Sentences> Sentences {get; set;} //One-To-Many relationship
         public string SentencesLinkTxt {get; set;}
         public string FileLink {get; set;}
     }

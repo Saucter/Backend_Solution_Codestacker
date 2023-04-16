@@ -12,13 +12,13 @@ var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirector
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
+builder.Services.AddDbContext<Database>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") //Add daabase connection string
 .Replace("my_password", config.Build().GetSection("Secrets:Password").Value)));
-builder.Services.AddScoped<IAzureFileStorageService, AzureFileStorageService>();
-builder.Services.AddScoped<ICacheRepository, CacheRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IAzureFileStorageService, AzureFileStorageService>(); //Add service DI
+builder.Services.AddScoped<ICacheRepository, CacheRepository>(); //Add caching DI
+builder.Services.AddScoped<IUserRepository, UserRepository>(); //Add authentication DI
+builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null); //Enable basic authentication
+builder.Services.AddMemoryCache(); //Enable caching
 
 var app = builder.Build();
 
@@ -41,7 +41,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthorization(); //Emable authentication
 
 app.MapRazorPages();
 app.MapControllers();

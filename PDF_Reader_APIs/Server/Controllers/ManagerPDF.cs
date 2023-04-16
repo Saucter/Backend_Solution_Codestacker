@@ -34,21 +34,24 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
     //(POST) API to post a PDF to the database and parse its sentences
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<List<PDF>>> PostPDF(List<IFormFile> Files)
+    public async Task<ActionResult<List<PDF>>> PostPDF(List<IFormFile> Files, bool? WithImages, bool? WithTxtFile)
     {
         List<PDF> ListPDF = new List<PDF>();
+        bool _WithImages = WithImages ?? false;
+        bool _WithTxtFile = WithTxtFile ?? false;
         foreach(var file in Files)
         {
             if(System.IO.Path.GetExtension(file.FileName) == ".pdf") //Ensure the file being sent is a PDF
             {
                 var FileInBytes = ManipulatorPDF.LoadBytePDF(file); //Byte array representing the PDF
                 PdfDocument FileLoader = ManipulatorPDF.LoadPDF(file);
-                List<Sentences> Sentences = ManipulatorPDF.GetSentences(FileLoader);
+                List<Sentences> Sentences = ManipulatorPDF.GetSentences(FileLoader, _WithImages);
                 
                 //Create a new instance of a PDF with all the required parameters.
                 //Save the file instance and sentences in an Azure blob storage using AzureSerices.SaveFile()
-                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, Sentences, await AzureServices.SaveFile(FileInBytes, file.FileName, "pdf-container"),
-                await AzureServices.SaveFile(ManipulatorPDF.SentencesToText(Sentences), file.FileName.Substring(0, file.FileName.Length - 4)+"_Sentence.txt", "sentences-container"));
+                string SentencesInTxt = (_WithTxtFile) ? await AzureServices.SaveFile(ManipulatorPDF.SentencesToText(Sentences), file.FileName.Substring(0, file.FileName.Length - 4)+"_Sentence.txt", "sentences-container") 
+                : "This file was not posted with 'WithTxtFile' enabled";
+                PDF FileInstance = new PDF(file.FileName, file.Length, FileLoader.Pages.Count, Sentences, await AzureServices.SaveFile(FileInBytes, file.FileName, "pdf-container"), SentencesInTxt);
 
                 DB.Add(FileInstance); //Add an instance of the PDF class to the database
                 ListPDF.Add(FileInstance); //Add instnace to a list

@@ -77,7 +77,7 @@ public class ManipulatorPDF
     }    
 
     //Parses the sentences in the PDF
-    public static List<Sentences> GetSentences(PdfDocument PdfFile)
+    public static List<Sentences> GetSentences(PdfDocument PdfFile, bool? WithImages)
     {
         //Regex pattern for parsing sentences
         string StartOfSentence = @"\(?[A-Z][^.!?]*";
@@ -86,13 +86,14 @@ public class ManipulatorPDF
         string Pattern = new StringBuilder().AppendFormat("{0}{1}{2}", StartOfSentence, PreventDotNotation_NegativeLookahead, EndOfSentence).ToString();
         List<Sentences>? ListSentences = new List<Sentences>();
         List<string>? ListStrings = new List<string>();
+        bool _WithImages = WithImages ?? false;
 
         //PdfDocument has PdfPageBase propetyu representing each page in the PDF doc
         foreach(PdfPageBase Page in PdfFile.Pages)
         {
             List<string> StringsInPage = Regex.Matches(Page.ExtractText(), Pattern).Cast<Match>().Select(m => m.Value.Trim()) //Matches the extracted text with the regex pattern
             .Where(x => !string.IsNullOrEmpty(x)) //Checks if the sentence is not null or empty
-            .Concat(RegexOCR(Page, Pattern)).ToList(); //Adds the text extracted from running OCR on images in the PDF (Important for image based PDFs)
+            .Concat((_WithImages) ? RegexOCR(Page, Pattern) : new List<string>()).ToList(); //Adds the text extracted from running OCR on images in the PDF (Important for image based PDFs)
             
             ListStrings.AddRange(FixBreaklines(StringsInPage)); //Fixes a bug related to breaklines in Spire.Pdf's text extraction and adds it to the final result's list
         }

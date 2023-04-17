@@ -31,4 +31,4 @@ This repo is a proposed solution for Rihal's backend developement challenge. A p
 * Spire.Pdf
 * Tesseract (And its related sub-libraries)
 * dotnet-stop-words
-> [The full list can be viewed here](/PDF_READER_APIs/Server/PDF_Reader_APIs.Server.csproj)
+> [The full list can be viewed here](PDF_Reader_APIs/Server/PDF_Reader_APIs.Server.csproj)

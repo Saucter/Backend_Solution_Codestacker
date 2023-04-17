@@ -62,7 +62,7 @@ public class ManipulatorPDF
     public static byte[] SentencesToText(List<Sentences> ListSentences)
     {
         string FilePath = "./Sentences/Sentences.txt"; //Leads to an empty string
-        MemoryStream ms = new MemoryStream();
+        MemoryStream ms = new MemoryStream(1000000);
         StreamWriter Writer = new StreamWriter(FilePath);
         foreach(var sentence in ListSentences)
         {
@@ -74,7 +74,7 @@ public class ManipulatorPDF
         fs.SetLength(0); //Makes the .txt file empty
         fs.Dispose();
         return ms.ToArray(); //Returns the .txt file as a byte array
-    }    
+    }
 
     //Parses the sentences in the PDF
     public static List<Sentences> GetSentences(PdfDocument PdfFile, bool? WithImages)
@@ -95,6 +95,7 @@ public class ManipulatorPDF
             .Where(x => !string.IsNullOrEmpty(x)) //Checks if the sentence is not null or empty
             .Concat((_WithImages) ? RegexOCR(Page, Pattern) : new List<string>()).ToList(); //Adds the text extracted from running OCR on images in the PDF (Important for image based PDFs)
             
+            StringsInPage = StringsInPage.Where(x => x != "Evaluation Warning : The document was created with Spire.PDF for .NET.").ToList(); //Remove Spire.Pdf message from strings
             ListStrings.AddRange(FixBreaklines(StringsInPage)); //Fixes a bug related to breaklines in Spire.Pdf's text extraction and adds it to the final result's list
         }
 
@@ -144,6 +145,7 @@ public class ManipulatorPDF
                 {
                     SubStrings[i] = Builder.AppendFormat("{0} {1}", SubStrings[i], SubStrings[i + 1]).ToString(); //Appends the two sentences together
                     SubStrings.RemoveAt(i+1); //Removes the second sentence from the list
+                    Builder.Clear();
                     i--; //Repeates the process one more time to check if the same condition applies to the newly concateenated sentence
                 }
             }

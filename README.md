@@ -8,9 +8,10 @@ If you'd like to check out the notes I took during the preparation phase for the
 With that being said, the installation instructions and API endpoints are as follows:
 
 ## Appraoch
-My approach to tackling the challenge and developing the API was to focus on creating a production-ready solution while keeping the user in mind. To achieve this, I utilized C# and ASP.NET Core as the primary language and framework, respectively, due to my familiarity with these tools especially due to my heavy use of them currently while working on my graduation project. The API was built with MSSQL / SQL Server as its database, utilizing Entity Framework Core as its mapper for ease of integration with ASP.NET Core. The API was designed to meet the requirements of the challenge stated in the initial brief sent to the contestents while also incorporating additional features to enhance the user's quality of life. The main features still remain the upload of PDF onto a datbase, retrieval of a PDF's information, returning sentences containing a given keyword, returning the most frequent words in a PDf, and deleting PDFs based on a given ID. However, certain ideas were added as to improve the user-experience and the program's overall efficiency such as giving freedom of choice during the posting process and utilizing caching.
+My approach to tackling the challenge and developing the API was to focus on creating a production-ready solution while keeping the user in mind. To achieve this, I utilized C# and ASP.NET Core as the primary language and framework, respectively, due to my familiarity with these tools especially due to my heavy use of them currently while working on my graduation project. The API was built with MSSQL / SQL Server as its database, utilizing Entity Framework Core as its mapper for ease of integration with ASP.NET Core. The API was designed to meet the requirements of the challenge stated in the initial brief sent to the contestents while also incorporating additional features to enhance the user's quality of life. The main features still remain the upload of PDF onto a datbase, retrieval of a PDF's information, returning sentences containing a given keyword, returning the most frequent words in a PDf, and deleting PDFs based on a given ID. However, certain ideas were added as to improve the user-experience and the program's overall efficiency such as giving freedom of choice during the posting process and utilizing caching. 
 
 To achieve these functionalities, the API utilizes various NuGet packages such as Microsoft.EntityFrameworkCore and Azure.Storage.Blobs for database and object storage, respectively. Other packages used include Spire.Pdf and Tesseract for PDF and OCR processing, and dotnet-stop-words for filtering stop words. In terms of security, the API requires authentication for certain actions, with specific usernames and passwords provided. Hope my solution is to a satisfactory standard!
+
 
 ## Installation
 * Clone the repo using git clone https://github.com/Saucter/Backend_Solution_Codestacker.git or simply download and unzip the file to a given directory.
@@ -23,7 +24,7 @@ To achieve these functionalities, the API utilizes various NuGet packages such a
 * The API can then be tested using Postman or Insomnia using the shown API URIs.
 
 ## API Endpoints
-### POST URI(s)
+### POST URI(s) => [Example](https://imgur.com/a/KVk4kN7)
 **PostPDF:** http://localhost:5143/pdf/PostPDF
 
 Allows the user to post a PDF to the database
@@ -31,7 +32,7 @@ Allows the user to post a PDF to the database
 * Param 2: `bool WithTxtFile`: If true inputs the parsed sentences into a .txt file and uploads it to object storage. False by default and can be disabled to improve speed
 * Param 3: `bool WithImages`: If true runs OCR over the images of the PDF. Used for Image-based PDFs. False by default, can be disabled to improve speed
 
-### GET URI(s)
+### GET URI(s) => [Example](https://imgur.com/a/XBuWIbB)
 **GetPDFs:** http://localhost:5143/pdf/GetPDFs
 
 Allows the user to retireve a PDF and its information based on the PDF's ID
@@ -53,7 +54,7 @@ Gets the top 'x' words in a list of PDFs while filtering out any stop-words
 * Param 2: `int? NumberOfWords`: Allows the user to the top 'x' words to retrieve. If param is null the default the top 5 words. 
 * Param 3: `List<string>? Ignore`: Allows the user to remove certain words from the retrieved list
 
-### DELETE URI(s)
+### DELETE URI(s) => [Example](https://imgur.com/a/4plzdBd)
 **DeletePDF:** http://localhost:5143/pdf/DeletePDF
 
 Alllows the user to delete an PDF from the DB based on ID. Requires header authentication
@@ -85,3 +86,6 @@ Alllows the user to delete all PDFs found in the DB. Requires special header aut
 * Tesseract (And its related sub-libraries)
 * dotnet-stop-words
 > [The full list can be viewed here](PDF_Reader_APIs/Server/PDF_Reader_APIs.Server.csproj)
+
+### Containerization
+I tried containerizing the backend in a docker image, and I have set it up as can be seen in the `Containization` branch. However, unfortuntely for one reason or another I could not successfully run the container, and I did not have enough time to deubg the issue. I apologize for that.

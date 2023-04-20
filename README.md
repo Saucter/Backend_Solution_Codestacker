@@ -3,9 +3,14 @@ Welcome to my project! My name is Mohammed Al-Hosni, 17 and studying at RGOTC at
 
 This is my submission for Rihal's backend development challenge as part of the Codestacker 2023 contest. This repository contains a PDF reader API built using C# and ASP.NET Core, which allows users to interact with a database of PDFs.
 
-If you'd like to check out the notes I took during the preparation phase for the challenge, you can find them in this [Notion file](https://traveling-flame-6a3.notion.site/PDF-API-codestacker-challenge-306ee59ee3be419b9b339fd80a53c1ea.
+If you'd like to check out the notes I took during the preparation phase for the challenge, you can find them in this [Notion file](https://traveling-flame-6a3.notion.site/PDF-API-codestacker-challenge-306ee59ee3be419b9b339fd80a53c1ea).
 
 With that being said, the installation instructions and API endpoints are as follows:
+
+## Appraoch
+In tackling the challenge and developing the API, my mindset was set to not necessarily create a solution to a challenge, but rather try to make a production ready API. Therefore my appraoch was to tackle the challenge with the user in mind. The primary tools utilized were C# and ASP.NET Core as the primary language and framework, respectively. This decision was made due to my familiarity with such tools as I am utilizing them currently while working on my gruaduation project.  Additionally, the API was built with MSSQL / SQL Server as its database, utilizing Entity Framework Core as its mapper simply due the ease of integration with ASP.NET Core. The API is designed as described in the challenge's details given in the .docx file sent to the contentests while also implementing some additional features that are meant to improve the quality of life of the user. As such, to allow users to interact with a database of PDFs, various HTTP Protocols as described in the challenge brief were utilized such as retrieving PDFs and their information, retrieving sentences containing a given keyword, getting top words, and deleting PDFs. Lastly, personally speaking, I am a big advocate for anything cloud-based. As such both the Database and object storage were incorporated using Azure's SQL DB and Blob storage respectively. 
+
+To achieve these functionalities, the API utilizes various NuGet packages such as Microsoft.EntityFrameworkCore and Azure.Storage.Blobs for database and object storage, respectively. Other packages used include Spire.Pdf and Tesseract for PDF and OCR processing, and dotnet-stop-words for filtering stop words. In terms of security, the API requires authentication for certain actions, with specific usernames and passwords provided. Hope my solution is to a satisfactory standard!
 
 ## Installation
 * Clone the repo using git clone https://github.com/Saucter/Backend_Solution_Codestacker.git or simply download and unzip the file to a given directory.

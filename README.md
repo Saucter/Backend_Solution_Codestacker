@@ -21,32 +21,45 @@ This repo is a proposed solution for Rihal's backend developement challenge. A p
 
 
 # API URIs
+### Basic authentication usernames and passwords (No whitespaces)
+* Username: Mohammed | PW: DoesThisWork123?
+* Username: RihalTeam | PW: Your_PW:)
+* FOR DELETE APIs -> Username: ForDeleteOnly | PW: PlsDoNotUse101
+
 ### Post URI(S)
 **PostPDF:** http://localhost:5143/pdf/PostPDF
 Allows the user to post a PDF to the database
-* Param 1: `Files`: form-data submissions to upload a PDF
+* Param 1: `form-data Files`: A form-date parameter for PDF submission / upload
 * Param 2: `bool WithTxtFile`: If true inputs the parsed sentences into a .txt file and uploads it to object storage. False by default and can be disabled to improve speed
 * Param 3: `bool WithImages`: If true runs OCR over the images of the PDF. Used for Image-based PDFs. False by default, can be disabled to improve speed
 
 ### GET URI(S)
-**PostPDF:** http://localhost:5143/pdf/PostPDF
-Allows the user to post a PDF to the database
-* Param 1: `Files`: form-data submissions to upload a PDF
-* Param 2: `bool WithTxtFile`: If true inputs the parsed sentences into a .txt file and uploads it to object storage. False by default and can be disabled to improve speed
-* Param 3: `bool WithImages`: If true runs OCR over the images of the PDF. Used for Image-based PDFs. False by default, can be disabled to improve speed
+**GetPDFs:** http://localhost:5143/pdf/GetPDFs
+Allows the user to retireve a PDF and its information based on the PDF's ID
+* Param 1: `List<int>? id`: A list of IDs for the API to retrieve from the DB. Retrieves all PDFs if the list is null
+* Param 2: `bool WithSentences`: If true it returns the PDFs with the parsed sentences. False by default, turned off to minimize screen clutter on retrieved JSON if unnecessary
 
-**PostPDF:** http://localhost:5143/pdf/PostPDF
+**GetKeyword:** http://localhost:5143/pdf/GetKeyword
+Allows the user to retrieve the sentences in which a given keyword resides in as well the number of times the word has occurred
+* Param 1: `List<int>? id`: Allows the user to decide which PDF(s) to look in. Looks at all PDFs if the list is null
+* Param 2: `string Keyword`: the keyword that the API should look for
+* Param 3: `bool Exact`: If true it makes sure the matched results are exactly like the submitted keyword (i.e. 'and' in 'mandate' is not considered). False by default
+* Param 4: `bool CaseSensitive`: If true it makes sure the matched results follow the same case as the submitted keyword. False by default
 
-**PostPDF:** http://localhost:5143/pdf/PostPDF
+**GetTopWords:** http://localhost:5143/pdf/GetTopWords
+Gets the top 'x' words in a list of PDFs while filtering out any stop-words
+* Param 1: `List<int>? id`: A list of PDF IDs that the API should look for top words in. Checks the top words in all PDFs if the list is null
+* Param 2: `int? NumberOfWords`: Allows the user to the top 'x' words to retrieve. If param is null the default the top 5 words. 
+* Param 3: `List<string>? Ignore`: Allows the user to remove certain words from the retrieved list
 
 ### DELETE URI(S)
-**PostPDF:** http://localhost:5143/pdf/PostPDF
-Allows the user to post a PDF to the database
-* Param 1: `Files`: form-data submissions to upload a PDF
-* Param 2: `bool WithTxtFile`: If true inputs the parsed sentences into a .txt file and uploads it to object storage. False by default and can be disabled to improve speed
-* Param 3: `bool WithImages`: If true runs OCR over the images of the PDF. Used for Image-based PDFs. False by default, can be disabled to improve speed
+**DeletePDF:** http://localhost:5143/pdf/DeletePDF
+Alllows the user to delete an PDF from the DB based on ID. Requires header authentication
+* Param 1: `List<int>? id`: A list of PDF IDs that the API should delete from the DB
 
-**PostPDF:** http://localhost:5143/pdf/PostPDF
+**DeleteAll:** http://localhost:5143/pdf/DeleteAll
+Alllows the user to delete all PDFs found in the DB. Requires special header authentication
+* No parameters
 
 
 # Tools utilized

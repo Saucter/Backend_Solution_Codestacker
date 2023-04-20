@@ -8,6 +8,7 @@ This repo is a proposed solution for Rihal's backend developement challenge. A p
 
 # Running instructions
 ### GitHub or zip file installation
+* Prerequisite: Dotnet SDK 7.0 or later
 * `Git install`: Clone the repo using `git clone https://github.com/Saucter/Backend_Solution_Codestacker.git`
 * `Zip file install`: Simply download and unzip the file to a given directory 
 * Launch the cloned repository / Unzipped file on your choice of Text Editor or IDE
@@ -15,10 +16,7 @@ This repo is a proposed solution for Rihal's backend developement challenge. A p
 * Run `cd ./PDF_Reader_APIs/Server` (Use backward slashes for Windows)
 * Run `dotnet run` 
 * Click the link in the terminal while holding the `Cntrl` or `⌘` key for Windows/Linux or MacOS respectively
-
-### Docker installation
-* Yes
-
+* The API can then be tested using Postman or Insomnia using the shown API URIs
 
 # API URIs
 ### Basic authentication usernames and passwords (No whitespaces)

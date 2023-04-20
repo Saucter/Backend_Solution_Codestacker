@@ -1,7 +1,39 @@
 ﻿@inherits LayoutComponentBase
 
+<style>
+    .Bro
+    {
+        position: absolute;
+        top: 30%;
+        left: 32%;
+    }
+
+    .Yes
+    {
+        position: absolute;
+        top: 30%;
+        left: 1140px;
+    }
+
+    a
+    {
+        text-decoration: none;
+    }
+
+    a:hover
+    {
+        text-decoration: underline;
+    }
+
+</style>
+
 <div class="page">
     <main>
+        <div class="top-row px-4">
+            <p class="Bro">This is a backend only application. Test it out using the API URIs found in the</p>
+            <a class ="Yes" href="https://github.com/Saucter/Backend_Solution_Codestacker" target="_blank">GitHub repo</a>
+        </div>
+
         <article class="content px-4">
             @Body
         </article>

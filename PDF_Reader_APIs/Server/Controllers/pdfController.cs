@@ -63,7 +63,7 @@ public class pdfController : ControllerBase //Inherit from ControllerBase to use
         }
         Cache.Remove("ListPDF"); //Unload the cache after a new post
         await DB.SaveChangesAsync();
-        return ListPDF; //Return the list of PDFs representing a successful POST
+        return (ListPDF.Count() > 0) ? ListPDF : Ok("No PDF is foudn in the database. Try first uploading some"); //Return the list of PDFs representing a successful POST
     }
 
 

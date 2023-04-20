@@ -14,7 +14,7 @@ To achieve these functionalities, the API utilizes various NuGet packages such a
 
 ## Installation
 * Clone the repo using git clone https://github.com/Saucter/Backend_Solution_Codestacker.git or simply download and unzip the file to a given directory.
-* Ensure that you have Dotnet SDK 7.0 or later installed.
+* Ensure that you have Dotnet SDK and runtime 7.0 or later installed.
 * Launch the cloned repository / unzipped file on your choice of Text Editor or IDE.
 * Launch a new terminal session.
 * Run cd ./PDF_Reader_APIs/Server (Use backward slashes for Windows).
